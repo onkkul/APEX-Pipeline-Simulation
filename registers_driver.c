@@ -15,8 +15,10 @@
 int
 is_phys_reg_free(APEX_CPU* cpu)
 {
-  for (int i = 0; i < URF_ENTRIES_NUMBER; i++) {
-    if (cpu->urf[i].free) {
+  for (int i = 0; i < URF_ENTRIES_NUMBER; i++)
+  {
+    if (cpu->urf[i].free)
+    {
       return 1;
     }
   }
@@ -26,8 +28,10 @@ is_phys_reg_free(APEX_CPU* cpu)
 int
 get_phys_reg(APEX_CPU* cpu)
 {
-  for (int i = 0; i < URF_ENTRIES_NUMBER; i++) {
-    if (cpu->urf[i].free) {
+  for (int i = 0; i < URF_ENTRIES_NUMBER; i++)
+  {
+    if (cpu->urf[i].free)
+    {
       return i;
     }
   }
@@ -50,7 +54,8 @@ void
 deallocate_phys_reg(APEX_CPU* cpu, int phys_reg)
 {
   //int phys_reg = cpu->rrat[arch_reg].commited_phys_reg;
-  if (phys_reg != -1) {
+  if (phys_reg != -1)
+  {
     //printf("Releasing phys_reg: %d, arch_reg: %d\n", phys_reg, arch_reg);
     cpu->urf[phys_reg].free = 1;
   }
@@ -94,7 +99,8 @@ read_source1(APEX_CPU* cpu)
   //printf("------\n");
   CPU_Stage* stage = &cpu->stage[DRF];
   int phys_rs1 = stage->phys_rs1;
-  if (cpu->urf[phys_rs1].valid) {
+  if (cpu->urf[phys_rs1].valid)
+  {
     stage->rs1_value = cpu->urf[phys_rs1].value;
     stage->rs1_valid = 1;
     //printf("phys_rs1: %d\n", phys_rs1);
@@ -108,7 +114,8 @@ read_source2(APEX_CPU* cpu)
   //printf("------\n");
   CPU_Stage* stage = &cpu->stage[DRF];
   int phys_rs2 = stage->phys_rs2;
-  if (cpu->urf[phys_rs2].valid) {
+  if (cpu->urf[phys_rs2].valid)
+  {
     stage->rs2_value = cpu->urf[phys_rs2].value;
     stage->rs2_valid = 1;
     //printf("phys_rs2: %d\n", phys_rs2);
@@ -133,7 +140,8 @@ save_urf_rat(APEX_CPU* cpu, int branch_id)
     //cpu->bis.backup_entry[branch_id].urf[j].free = cpu->urf[j].free;
     //cpu->bis.backup_entry[branch_id].urf[j].valid = cpu->urf[j].valid;
   //}
-  for (int j=0; j < RAT_ENTRIES_NUMBER; j++) {
+  for (int j=0; j < RAT_ENTRIES_NUMBER; j++)
+  {
     cpu->bis.backup_entry[branch_id].rat[j].phys_reg = cpu->rat[j].phys_reg;
   }
 }
@@ -147,7 +155,8 @@ recover_urf_rat(APEX_CPU* cpu)
     //cpu->urf[j].free = cpu->bis.backup_entry[branch_id].urf[j].free;
     //cpu->urf[j].valid = cpu->bis.backup_entry[branch_id].urf[j].valid;
   //}
-  for (int j=0; j < RAT_ENTRIES_NUMBER; j++) {
+  for (int j=0; j < RAT_ENTRIES_NUMBER; j++)
+  {
     cpu->rat[j].phys_reg = cpu->bis.backup_entry[branch_id].rat[j].phys_reg;
   }
 }
@@ -156,8 +165,10 @@ void
 print_urf_for_debug(APEX_CPU* cpu)
 {
   printf("------------------------------ Details of URF State -----------------------------\n");
-  for (int i = 0; i < URF_ENTRIES_NUMBER; i++) {
-    if (!cpu->urf[i].free) {
+  for (int i = 0; i < URF_ENTRIES_NUMBER; i++)
+  {
+    if (!cpu->urf[i].free)
+    {
       printf("| URF[%d] = %d, VALID = %d |",
               i, cpu->urf[i].value, cpu->urf[i].valid);
     }
@@ -170,10 +181,11 @@ void
 print_datamemory_for_debug(APEX_CPU* cpu)
 {
   printf("-------------------------- Details of Data Memory State -------------------------\n");
-  for (int i = 0; i < 100; i++) {
-    if (cpu->data_memory[i]) {
-      printf("| D[%d] = %d |",
-              i, cpu->data_memory[i]);
+  for (int i = 0; i < 100; i++)
+  {
+    if (cpu->data_memory[i])
+    {
+      printf("| D[%d] = %d |",i, cpu->data_memory[i]);
     }
   }
   printf("\n");
@@ -185,14 +197,16 @@ display_rat(APEX_CPU* cpu)
 {
   int rat_empty = 1;
   printf("-------------------------------------- RAT --------------------------------------\n");
-  for (int i = 0; i < RAT_ENTRIES_NUMBER; i++) {
-    if (cpu->rat[i].phys_reg != -1) {
+  for (int i = 0; i < RAT_ENTRIES_NUMBER; i++)
+  {
+    if (cpu->rat[i].phys_reg != -1)
+    {
       rat_empty = 0;
-      printf("| RAT[%d] = U%d |",
-              i, cpu->rat[i].phys_reg);
+      printf("| RAT[%d] = U%d |",i, cpu->rat[i].phys_reg);
     }
   }
-  if (rat_empty) {
+  if (rat_empty)
+  {
     printf("Empty");
   }
   printf("\n");
@@ -204,14 +218,17 @@ display_rrat(APEX_CPU* cpu)
 {
   int rrat_empty = 1;
   printf("------------------------------------- R-RAT -------------------------------------\n");
-  for (int i = 0; i < RRAT_ENTRIES_NUMBER; i++) {
-    if (cpu->rrat[i].commited_phys_reg != -1) {
+  for (int i = 0; i < RRAT_ENTRIES_NUMBER; i++)
+  {
+    if (cpu->rrat[i].commited_phys_reg != -1)
+    {
       rrat_empty = 0;
       printf("| R-RAT[%d] = U%d |",
               i, cpu->rrat[i].commited_phys_reg);
     }
   }
-  if (rrat_empty) {
+  if (rrat_empty)
+  {
     printf("Empty");
   }
   printf("\n");
@@ -237,10 +254,11 @@ print_saved_rat(APEX_CPU* cpu, int branch_id)
 {
   printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
   printf("Details of saved RAT State for Branch ID: %d\n", branch_id);
-  for (int i = 0; i < RAT_ENTRIES_NUMBER; i++) {
-    if (cpu->bis.backup_entry[branch_id].rat[i].phys_reg != -1) {
-      printf("| RAT[%d] = U%d |",
-              i, cpu->bis.backup_entry[branch_id].rat[i].phys_reg);
+  for (int i = 0; i < RAT_ENTRIES_NUMBER; i++)
+  {
+    if (cpu->bis.backup_entry[branch_id].rat[i].phys_reg != -1)
+    {
+      printf("| RAT[%d] = U%d |",i, cpu->bis.backup_entry[branch_id].rat[i].phys_reg);
     }
   }
   printf("\n");
@@ -259,10 +277,11 @@ void
 display_urf(APEX_CPU* cpu)
 {
   printf("\n======================== STATE OF UNIFIED REGISTER FILE ========================\n");
-  for (int i = 0; i < URF_ENTRIES_NUMBER; i++) {
-    if (!cpu->urf[i].free) {
-      printf("         |\tURF[%d]\t|\tValue = %d\t|\tStatus = %d\t|\n",
-            i, cpu->urf[i].value, cpu->urf[i].valid);
+  for (int i = 0; i < URF_ENTRIES_NUMBER; i++)
+  {
+    if (!cpu->urf[i].free)
+    {
+      printf("         |\tURF[%d]\t|\tValue = %d\t|\tStatus = %d\t|\n",i, cpu->urf[i].value, cpu->urf[i].valid);
     }
   }
   printf("================================================================================\n");
@@ -272,7 +291,8 @@ void
 display_data_mem(APEX_CPU* cpu)
 {
   printf("\n============================= STATE OF DATA MEMORY =============================\n");
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 100; i++)
+  {
     printf("                     |\tMEM[%d]\t|\tData Value = %d\t|\n",
             i, cpu->data_memory[i]);
   }
