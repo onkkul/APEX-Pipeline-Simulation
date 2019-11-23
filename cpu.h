@@ -33,6 +33,7 @@ typedef struct APEX_Instruction
     int rd;		    // Destination Register Address
     int rs1;		    // Source-1 Register Address
     int rs2;		    // Source-2 Register Address
+    int rs3;
     int imm;		    // Literal Value
 } APEX_Instruction;
 
@@ -41,17 +42,27 @@ typedef struct CPU_Stage
 {
     int pc;		    // Program Counter
     char opcode[128];	// Operation Code
+
     int arch_rs1;		    // Source-1 Architectural Register Address
     int arch_rs2;		    // Source-2 Architectural Register Address
-    int arch_rd;		    // Destination Architectural Register Address
+    int arch_rs3;           // Source-3 Architectural Register Address
+
     int phys_rs1;		    // Source-1 Physical Register Address
     int phys_rs2;		    // Source-2 Physical Register Address
-    int phys_rd;		    // Destination Physical Register Address
-    int imm;		    // Literal Value
+    int phys_rs3;           // Source-2 Physical Register Address
+
     int rs1_value;	// Source-1 Register Value
     int rs2_value;	// Source-2 Register Value
+    int rs3_value;  // Source-2 Register Value
+    
     int rs1_valid;	// Source-1 Register Value
     int rs2_valid;	// Source-2 Register Value
+    int rs3_valid;  // Source-3 Register Value
+
+    int arch_rd;            // Destination Architectural Register Address
+    int phys_rd;            // Destination Physical Register Address
+    int imm;            // Literal Value
+
     int buffer;		// Latch to hold some value
     int mem_address;	// Computed Memory Address
     int busy;		    // Flag to indicate, stage is performing some action
@@ -84,8 +95,14 @@ typedef struct ISSUE_QUEUE_Entry
     int phys_rs2;    // source-2 physical address
     int rs2_value;    // source-2 value
 
+    int arch_rs3;
+    int rs3_ready;    // source-3 ready bit
+    int phys_rs3;    // source-3 physical address
+    int rs3_value;    // source-3 value
+
     int arch_rd;
     int phys_rd;
+
     int rob_entry_id;
     int LSQ_index;
     int branch_id;
@@ -103,14 +120,21 @@ typedef struct ROB_Entry
     int free;    // indicates if the entry is allocated or free
     char opcode[128];	// Operation Code
     int pc;    // PC value of an instruction
+    int branch_id;
+    int status;    // indicates if the result value is valid
+
     int arch_rd;    // Destination architectural address
     int phys_rd;    // Destination physical address
-    int status;    // indicates if the result value is valid
-    int branch_id;
+    
     int arch_rs1;
     int phys_rs1;    // source-1 physical address
+
     int arch_rs2;
     int phys_rs2;    // source-2 physical address
+
+    int arch_rs3;
+    int phys_rs3;    // source-3 physical address
+
     int imm;
 } ROB_Entry;
 
@@ -175,8 +199,15 @@ typedef struct LSQ_Entry
     int rs1_value;    // source-1 value
 
     /* Source-2 fields */
+    int rs2_ready;
     int arch_rs2;
     int phys_rs2;    // source-2 physical address
+    int rs2_value;
+
+    int rs3_ready;
+    int arch_rs3;
+    int phys_rs3;    // source-3 physical address
+    int rs3_value;
 
     int imm;
 

@@ -31,6 +31,10 @@ static int get_num_from_string(char* buffer)
  *
  * Note : you can edit this function to add new instructions
  */
+
+// chanched refister file names from 24 to  24
+// the older file had 15 registers but our has 24 - onkar 11 nov 11:45
+
 static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
 {
     char* token = strtok(buffer, ",");
@@ -49,7 +53,7 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
     {
         ins->rd = get_num_from_string(tokens[1]);
 
-        if (ins->rd > 15 || ins->rd < 0) 
+        if (ins->rd > 24 || ins->rd < 0) 
         {
             exception_handler(1, ins->opcode);
         }
@@ -57,17 +61,31 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         ins->imm = get_num_from_string(tokens[2]);
     }
 
+    
     if (strcmp(ins->opcode, "STORE") == 0) 
     {
         ins->rs1 = get_num_from_string(tokens[1]);
         ins->rs2 = get_num_from_string(tokens[2]);
 
-        if ((ins->rs1 > 15 || ins->rs1 < 0) || (ins->rs2 > 15 || ins->rs2 < 0)) 
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0)) 
         {
             exception_handler(1, ins->opcode);
         }
 
         ins->imm = get_num_from_string(tokens[3]);
+    }
+
+    //added oafterwards by onkar 22 nov 11:43
+    if (strcmp(ins->opcode, "STR") == 0) 
+    {
+        ins->rs1 = get_num_from_string(tokens[1]);
+        ins->rs2 = get_num_from_string(tokens[2]);
+        ins->rs3 = get_num_from_string(tokens[3]);
+
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs3 < 0)) 
+        {
+            exception_handler(1, ins->opcode);
+        }
     }
 
     if (strcmp(ins->opcode, "LOAD") == 0) 
@@ -77,6 +95,14 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         ins->imm = get_num_from_string(tokens[3]);
     }
 
+    //added oafterwards by onkar 22 nov 11:43
+    if (strcmp(ins->opcode, "LDR") == 0) 
+    {
+        ins->rd = get_num_from_string(tokens[1]);
+        ins->rs1 = get_num_from_string(tokens[2]);
+        ins->rs2 = get_num_from_string(tokens[3]);
+    }
+
     if (strcmp(ins->opcode, "ADD") == 0 || strcmp(ins->opcode, "SUB") == 0 || strcmp(ins->opcode, "AND") == 0 || strcmp(ins->opcode, "OR") == 0 || strcmp(ins->opcode, "EX-OR") == 0 || strcmp(ins->opcode, "MUL") == 0) 
     {
 
@@ -84,7 +110,7 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         ins->rs1 = get_num_from_string(tokens[2]);
         ins->rs2 = get_num_from_string(tokens[3]);
 
-        if ((ins->rs1 > 15 || ins->rs1 < 0) || (ins->rs2 > 15 || ins->rs2 < 0) || (ins->rd > 15 || ins->rd < 0)) 
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0) || (ins->rd > 24 || ins->rd < 0)) 
         {
             exception_handler(1, ins->opcode);
         }
@@ -97,7 +123,7 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         ins->rs1 = get_num_from_string(tokens[2]);
         ins->imm = get_num_from_string(tokens[3]);
 
-        if ((ins->rs1 > 15 || ins->rs1 < 0) || (ins->rd > 15 || ins->rd < 0)) 
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rd > 24 || ins->rd < 0)) 
         {
             exception_handler(1, ins->opcode);
         }
@@ -112,7 +138,7 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
     {
         ins->rs1 = get_num_from_string(tokens[1]);
 
-        if (ins->rs1 > 15 || ins->rs1 < 0) 
+        if (ins->rs1 > 24 || ins->rs1 < 0) 
         {
             exception_handler(1, ins->opcode);
         }
@@ -125,7 +151,7 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         ins->rd = get_num_from_string(tokens[1]);
         ins->rs1 = get_num_from_string(tokens[2]);
 
-        if (ins->rs1 > 15 || ins->rs1 < 0) 
+        if (ins->rs1 > 24 || ins->rs1 < 0) 
         {
             exception_handler(1, ins->opcode);
         }

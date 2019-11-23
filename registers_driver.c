@@ -93,6 +93,15 @@ void rename_source2(APEX_CPU* cpu)
     //printf("Renamed phys_rs2: %d\n", stage->phys_rs2);
 }
 
+void rename_source3(APEX_CPU* cpu)
+{
+    //printf("------\n");
+    CPU_Stage* stage = &cpu->stage[DRF];
+    int arch_rs3 = stage->arch_rs3;
+    //printf("Got arch_rs3: %d\n", arch_rs3);
+    stage->phys_rs3 = cpu->rat[arch_rs3].phys_reg;
+    //printf("Renamed phys_rs3: %d\n", stage->phys_rs3);
+}
 
 void read_source1(APEX_CPU* cpu)
 {
@@ -123,6 +132,19 @@ void read_source2(APEX_CPU* cpu)
     }
 }
 
+void read_source3(APEX_CPU* cpu)
+{
+    //printf("------\n");
+    CPU_Stage* stage = &cpu->stage[DRF];
+    int phys_rs3 = stage->phys_rs3;
+    if (cpu->urf[phys_rs3].valid)
+    {
+        stage->rs3_value = cpu->urf[phys_rs3].value;
+        stage->rs3_valid = 1;
+        //printf("phys_rs3: %d\n", phys_rs3);
+        //printf("stage->rs3_value: %d\n", stage->rs3_value);
+    }
+}
 
 void write_urf(APEX_CPU* cpu, enum STAGES FU_type)
 {
@@ -177,6 +199,7 @@ void print_urf_for_debug(APEX_CPU* cpu)
     printf("\n");
     printf("---------------------------------------------------------------------------------\n\n");
 }
+
 
 void print_datamemory_for_debug(APEX_CPU* cpu)
 {

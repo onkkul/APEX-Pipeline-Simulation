@@ -29,16 +29,28 @@ int push_lsq_entry(APEX_CPU* cpu, LSQ_Entry* new_lsq_entry)
     cpu->lsq.lsq_entry[free_entry].free = new_lsq_entry->free;
     strcpy(cpu->lsq.lsq_entry[free_entry].opcode, new_lsq_entry->opcode);
     cpu->lsq.lsq_entry[free_entry].pc = new_lsq_entry->pc;
+
     cpu->lsq.lsq_entry[free_entry].mem_address_valid = new_lsq_entry->mem_address_valid;
     cpu->lsq.lsq_entry[free_entry].mem_address = new_lsq_entry->mem_address;
+    
     cpu->lsq.lsq_entry[free_entry].branch_id = new_lsq_entry->branch_id;
     cpu->lsq.lsq_entry[free_entry].rob_entry_id = new_lsq_entry->rob_entry_id;
+    
     cpu->lsq.lsq_entry[free_entry].rs1_ready = new_lsq_entry->rs1_ready;
     cpu->lsq.lsq_entry[free_entry].phys_rs1 = new_lsq_entry->phys_rs1;
     cpu->lsq.lsq_entry[free_entry].arch_rs1 = new_lsq_entry->arch_rs1;
     cpu->lsq.lsq_entry[free_entry].rs1_value = new_lsq_entry->rs1_value;
+    
+    cpu->lsq.lsq_entry[free_entry].rs2_ready = new_lsq_entry->rs2_ready;
     cpu->lsq.lsq_entry[free_entry].phys_rs2 = new_lsq_entry->phys_rs2;
     cpu->lsq.lsq_entry[free_entry].arch_rs2 = new_lsq_entry->arch_rs2;
+    cpu->lsq.lsq_entry[free_entry].rs2_value = new_lsq_entry->rs2_value;
+
+    cpu->lsq.lsq_entry[free_entry].rs3_ready = new_lsq_entry->rs3_ready;
+    cpu->lsq.lsq_entry[free_entry].phys_rs3 = new_lsq_entry->phys_rs3;
+    cpu->lsq.lsq_entry[free_entry].arch_rs3 = new_lsq_entry->arch_rs3;
+    cpu->lsq.lsq_entry[free_entry].rs3_value = new_lsq_entry->rs3_value;
+
     cpu->lsq.lsq_entry[free_entry].imm = new_lsq_entry->imm;
     cpu->lsq.lsq_entry[free_entry].arch_rd = new_lsq_entry->arch_rd;
     cpu->lsq.lsq_entry[free_entry].phys_rd = new_lsq_entry->phys_rd;
@@ -81,12 +93,19 @@ void get_instruction_to_MEM(APEX_CPU* cpu)
     {
         cpu->stage[MEM].pc = cpu->lsq.lsq_entry[entry].pc;
         strcpy(cpu->stage[MEM].opcode, cpu->lsq.lsq_entry[entry].opcode);
+        
         cpu->stage[MEM].arch_rd = cpu->lsq.lsq_entry[entry].arch_rd;
         cpu->stage[MEM].phys_rd = cpu->lsq.lsq_entry[entry].phys_rd;
+        
         cpu->stage[MEM].phys_rs1 = cpu->lsq.lsq_entry[entry].phys_rs1;
         cpu->stage[MEM].arch_rs1 = cpu->lsq.lsq_entry[entry].arch_rs1;
+        
         cpu->stage[MEM].phys_rs2 = cpu->lsq.lsq_entry[entry].phys_rs2;
         cpu->stage[MEM].arch_rs2 = cpu->lsq.lsq_entry[entry].arch_rs2;
+
+        cpu->stage[MEM].phys_rs3 = cpu->lsq.lsq_entry[entry].phys_rs3;
+        cpu->stage[MEM].arch_rs3 = cpu->lsq.lsq_entry[entry].arch_rs3;
+
         cpu->stage[MEM].imm = cpu->lsq.lsq_entry[entry].imm;
         cpu->stage[MEM].rs1_value = cpu->lsq.lsq_entry[entry].rs1_value;
         cpu->stage[MEM].mem_address = cpu->lsq.lsq_entry[entry].mem_address;
@@ -135,9 +154,9 @@ void print_lsq_for_debug(APEX_CPU* cpu)
     {
         if (!cpu->lsq.lsq_entry[i].free) 
         {
-            printf("| ID=%d, OPCODE=%s, PC=%d, MAV=%d, MA=%d, BR=%d, ROB=%d, RS1_READY=%d, PHYS_RS1=%d, RS1_VALUE=%d, PHYS_RS2=%d, IMM=%d, ARCH_RD=%d PHYS_RD=%d |\n",
+            printf("| ID=%d, OPCODE=%s, PC=%d, MAV=%d, MA=%d, BR=%d, ROB=%d, RS1_READY=%d, PHYS_RS1=%d, RS1_VALUE=%d, PHYS_RS2=%d, PHYS_RS3=%d, IMM=%d, ARCH_RD=%d PHYS_RD=%d |\n",
               i, cpu->lsq.lsq_entry[i].opcode, cpu->lsq.lsq_entry[i].pc,cpu->lsq.lsq_entry[i].mem_address_valid, cpu->lsq.lsq_entry[i].mem_address,cpu->lsq.lsq_entry[i].branch_id, cpu->lsq.lsq_entry[i].rob_entry_id,
-              cpu->lsq.lsq_entry[i].rs1_ready, cpu->lsq.lsq_entry[i].phys_rs1, cpu->lsq.lsq_entry[i].rs1_value,cpu->lsq.lsq_entry[i].phys_rs2, cpu->lsq.lsq_entry[i].imm, cpu->lsq.lsq_entry[i].arch_rd,
+              cpu->lsq.lsq_entry[i].rs1_ready, cpu->lsq.lsq_entry[i].phys_rs1, cpu->lsq.lsq_entry[i].rs1_value,cpu->lsq.lsq_entry[i].phys_rs2, cpu->lsq.lsq_entry[i].phys_rs3, cpu->lsq.lsq_entry[i].imm, cpu->lsq.lsq_entry[i].arch_rd,
               cpu->lsq.lsq_entry[i].phys_rd);
         }
     }
@@ -177,10 +196,16 @@ void display_lsq(APEX_CPU* cpu)
                 printf("pc(%d)  ", cpu->lsq.lsq_entry[i].pc);
                 CPU_Stage* instruction_to_print = malloc(sizeof(*instruction_to_print));
                 strcpy(instruction_to_print->opcode, cpu->lsq.lsq_entry[i].opcode);
+                
                 instruction_to_print->arch_rs1 = cpu->lsq.lsq_entry[i].arch_rs1;
                 instruction_to_print->phys_rs1 = cpu->lsq.lsq_entry[i].phys_rs1;
+                
                 instruction_to_print->arch_rs2 = cpu->lsq.lsq_entry[i].arch_rs2;
                 instruction_to_print->phys_rs2 = cpu->lsq.lsq_entry[i].phys_rs2;
+
+                instruction_to_print->arch_rs3 = cpu->lsq.lsq_entry[i].arch_rs3;
+                instruction_to_print->phys_rs3 = cpu->lsq.lsq_entry[i].phys_rs3;
+
                 instruction_to_print->arch_rd = cpu->lsq.lsq_entry[i].arch_rd;
                 instruction_to_print->phys_rd = cpu->lsq.lsq_entry[i].phys_rd;
                 instruction_to_print->imm = cpu->lsq.lsq_entry[i].imm;

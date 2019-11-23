@@ -49,15 +49,23 @@ int push_rob_entry(APEX_CPU* cpu, ROB_Entry* new_rob_entry)
     int free_entry = cpu->rob.tail;
     cpu->rob.rob_entry[free_entry].free = new_rob_entry->free;
     strcpy(cpu->rob.rob_entry[free_entry].opcode, new_rob_entry->opcode);
+
     cpu->rob.rob_entry[free_entry].pc = new_rob_entry->pc;
-    cpu->rob.rob_entry[free_entry].arch_rd = new_rob_entry->arch_rd;
-    cpu->rob.rob_entry[free_entry].phys_rd = new_rob_entry->phys_rd;
     cpu->rob.rob_entry[free_entry].status = new_rob_entry->status;
     cpu->rob.rob_entry[free_entry].branch_id = new_rob_entry->branch_id;
+
+    cpu->rob.rob_entry[free_entry].arch_rd = new_rob_entry->arch_rd;
+    cpu->rob.rob_entry[free_entry].phys_rd = new_rob_entry->phys_rd;
+
     cpu->rob.rob_entry[free_entry].arch_rs1 = new_rob_entry->arch_rs1;
     cpu->rob.rob_entry[free_entry].phys_rs1 = new_rob_entry->phys_rs1;
+    
     cpu->rob.rob_entry[free_entry].arch_rs2 = new_rob_entry->arch_rs2;
     cpu->rob.rob_entry[free_entry].phys_rs2 = new_rob_entry->phys_rs2;
+
+    cpu->rob.rob_entry[free_entry].arch_rs3 = new_rob_entry->arch_rs3;
+    cpu->rob.rob_entry[free_entry].phys_rs3 = new_rob_entry->phys_rs3;
+
     cpu->rob.rob_entry[free_entry].imm = new_rob_entry->imm;
     cpu->rob.tail++;
     if (cpu->rob.tail == ROB_ENTRIES_NUMBER)
@@ -206,12 +214,19 @@ void display_rob(APEX_CPU* cpu)
             {
                 printf("pc(%d)  ", cpu->rob.rob_entry[i].pc); CPU_Stage* instruction_to_print = malloc(sizeof(*instruction_to_print));
                 strcpy(instruction_to_print->opcode, cpu->rob.rob_entry[i].opcode);
+                
                 instruction_to_print->arch_rs1 = cpu->rob.rob_entry[i].arch_rs1;
                 instruction_to_print->phys_rs1 = cpu->rob.rob_entry[i].phys_rs1;
+                
                 instruction_to_print->arch_rs2 = cpu->rob.rob_entry[i].arch_rs2;
                 instruction_to_print->phys_rs2 = cpu->rob.rob_entry[i].phys_rs2;
+
+                instruction_to_print->arch_rs3 = cpu->rob.rob_entry[i].arch_rs3;
+                instruction_to_print->phys_rs3 = cpu->rob.rob_entry[i].phys_rs3;
+                
                 instruction_to_print->arch_rd = cpu->rob.rob_entry[i].arch_rd;
                 instruction_to_print->phys_rd = cpu->rob.rob_entry[i].phys_rd;
+                
                 instruction_to_print->imm = cpu->rob.rob_entry[i].imm;
                 print_instruction(0, instruction_to_print);
                 printf("\t|");

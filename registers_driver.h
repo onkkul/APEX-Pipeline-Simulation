@@ -17,9 +17,13 @@ void rename_source1(APEX_CPU* cpu);
 
 void rename_source2(APEX_CPU* cpu);
 
+void rename_source3(APEX_CPU* cpu);
+
 void read_source1(APEX_CPU* cpu);
 
 void read_source2(APEX_CPU* cpu);
+
+void read_source3(APEX_CPU* cpu);
 
 void save_urf_rat(APEX_CPU* cpu, int bis_id);
 
