@@ -11,7 +11,8 @@
 int
 is_bis_entry_free(APEX_CPU* cpu)
 {
-  if (cpu->bis.bis_entry[cpu->bis.tail].free) {
+  if (cpu->bis.bis_entry[cpu->bis.tail].free)
+  {
     return 1;
   }
   return 0;
@@ -24,7 +25,8 @@ get_bis_entry(APEX_CPU* cpu)
   cpu->bis.bis_entry[cpu->bis.tail].free = 0;
   cpu->bis.bis_entry[cpu->bis.tail].phys_src = cpu->last_arith_phys_rd;
   cpu->bis.tail++;
-  if (cpu->bis.tail == BIS_ENTRIES_NUMBER) {
+  if (cpu->bis.tail == BIS_ENTRIES_NUMBER)
+  {
     cpu->bis.tail = 0;
   }
   return free_bis_entry_id;
@@ -39,16 +41,19 @@ deallocate_branch_id(APEX_CPU* cpu, int branch_id)
 void
 flush_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
 {
-  while (branch_id <= cpu->last_branch_id) {
-    if (cpu->stage[FU_type].branch_id == branch_id) {
+  while (branch_id <= cpu->last_branch_id)
+  {
+    if (cpu->stage[FU_type].branch_id == branch_id)
+    {
       strcpy(cpu->stage[FU_type].opcode, "");
 
-      if (FU_type == Mul_FU) {
+      if (FU_type == Mul_FU)
+      {
         cpu->mul_cycle = 1;
         cpu->stage[Mul_FU].stalled = 0;
       }
-
-      if (FU_type == MEM) {
+      if (FU_type == MEM)
+      {
         cpu->mem_cycle = 1;
         cpu->stage[MEM].stalled = 0;
       }
@@ -72,32 +77,40 @@ release_bis_ids(APEX_CPU* cpu, int branch_id)
   int initial_branch_id = branch_id;
   // do not release current bis id
   branch_id++;
-  if (branch_id == BIS_ENTRIES_NUMBER) {
+  if (branch_id == BIS_ENTRIES_NUMBER)
+  {
     branch_id = 0;
   }
-  if (branch_id <= cpu->last_branch_id) {
-    while (branch_id <= cpu->last_branch_id) {
+  if (branch_id <= cpu->last_branch_id)
+  {
+    while (branch_id <= cpu->last_branch_id)
+    {
       cpu->bis.bis_entry[branch_id].free = 1;
       branch_id++;
     }
   }
-  else {
-    while (branch_id < BIS_ENTRIES_NUMBER) {
+  else
+  {
+    while (branch_id < BIS_ENTRIES_NUMBER)
+    {
       cpu->bis.bis_entry[branch_id].free = 1;
       branch_id++;
     }
     branch_id = 0;
-    while (branch_id <= cpu->last_branch_id) {
+    while (branch_id <= cpu->last_branch_id)
+    {
       cpu->bis.bis_entry[branch_id].free = 1;
       branch_id++;
     }
   }
   cpu->last_branch_id = initial_branch_id;
   initial_branch_id++;
-  if (initial_branch_id == BIS_ENTRIES_NUMBER) {
+  if (initial_branch_id == BIS_ENTRIES_NUMBER)
+  {
     cpu->bis.tail = 0;
   }
-  else {
+  else
+  {
     cpu->bis.tail = initial_branch_id;
   }
 }
