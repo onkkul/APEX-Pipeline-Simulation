@@ -1,5 +1,4 @@
-/*
- *  cpu.c
+/*  cpu.c
  *  Contains APEX cpu pipeline implementation
  *
  *  Author :
@@ -226,6 +225,7 @@ void APEX_cpu_stop(APEX_CPU* cpu)
   free(cpu);
 }
 
+
 /* Converts the PC(4000 series) into
  * array index for code memory
  */
@@ -233,6 +233,7 @@ int get_code_index(int pc)
 {
     return (pc - 4000) / 4;
 }
+
 
 void print_instruction(int fetch_decode, CPU_Stage* stage)
 {
@@ -333,6 +334,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
     }
 }
 
+
 /* Debug function which dumps the cpu stage
  * content
  */
@@ -376,6 +378,7 @@ static void print_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type)
     printf("\n");
 }
 
+
 /* Exception handler messages
  * Key 0 - Computed effective memory is NOT in the range 0 - 4096
  * Key 1 - Invalid register input
@@ -398,6 +401,7 @@ int exception_handler(int code, char* opcode)
     return 0;
 }
 
+
 int broadcast_result(APEX_CPU* cpu, enum STAGES FU_type)
 {
     write_urf(cpu, FU_type);
@@ -406,10 +410,12 @@ int broadcast_result(APEX_CPU* cpu, enum STAGES FU_type)
     return 0;
 }
 
+
 void clear_stage(APEX_CPU* cpu, enum STAGES FU_type)
 {
     strcpy(cpu->stage[FU_type].opcode, "");
 }
+
 
 void control_flow(APEX_CPU* cpu)
 {
@@ -420,6 +426,7 @@ void control_flow(APEX_CPU* cpu)
     cpu->pc = cpu->stage[Int_FU].target_address;
     cpu->fill_in_rob = 0;
 }
+
 
 int allowed_dispatch(APEX_CPU* cpu, int dest, int lsq, int branch, int iq)
 {
@@ -478,6 +485,7 @@ int allowed_dispatch(APEX_CPU* cpu, int dest, int lsq, int branch, int iq)
 
     return 0;
 }
+
 
 int dispatch_instruction(APEX_CPU* cpu, int dest, int src1, int src2, int lsq, int branch, enum STAGES FU_type)
 {
@@ -597,6 +605,7 @@ int dispatch_instruction(APEX_CPU* cpu, int dest, int src1, int src2, int lsq, i
 
     return 0;
 }
+
 
 int fetch(APEX_CPU* cpu)
 {
@@ -912,6 +921,7 @@ int decode(APEX_CPU* cpu)
         return 0;
 }
 
+
 /*  Execute Stage of APEX Pipeline
  *
  *  Note : You are free to edit this function according to your
@@ -1049,6 +1059,7 @@ int execute_int(APEX_CPU* cpu)
     return 0;
 }
 
+
 /*  Execute Stage for MUL instruction
  *
  *  Note : You are free to edit this function according to your
@@ -1091,6 +1102,7 @@ int execute_mul(APEX_CPU* cpu)
     }
     return 0;
 }
+
 
 int memory(APEX_CPU* cpu)
 {
@@ -1150,6 +1162,7 @@ int memory(APEX_CPU* cpu)
 
     return 0;
 }
+
 
 int APEX_cpu_run(APEX_CPU* cpu)
 {
