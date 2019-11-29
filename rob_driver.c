@@ -1,8 +1,5 @@
 /*  rob_driver.c
-*
-*  Author :
-*  Ulugbek Ergashev (uergash1@binghamton.edu)
-*  State University of New York, Binghamton
+*   State University of New York, Binghamton
 */
 
 #include <stdio.h>
@@ -16,7 +13,7 @@
 #include "registers_driver.h"
 #include "branch_driver.h"
 
-int is_rob_empty(APEX_CPU* cpu)
+int check_rob_empty(APEX_CPU* cpu)
 {
     for (int i = 0; i < ROB_ENTRIES_NUMBER; i++)
     {
@@ -28,10 +25,7 @@ int is_rob_empty(APEX_CPU* cpu)
     return 1;
 }
 
-
-/*  Checks whether there is free entry in ROB
-*/
-int is_rob_entry_free(APEX_CPU* cpu)
+int check_rob_entry_free(APEX_CPU* cpu)
 {
     if (cpu->rob.rob_entry[cpu->rob.tail].free)
     {
@@ -41,10 +35,7 @@ int is_rob_entry_free(APEX_CPU* cpu)
     return 0;
 }
 
-
-// Before calling this function, make sure you first call
-// is_rob_entry_free function explicitly
-int push_rob_entry(APEX_CPU* cpu, ROB_Entry* new_rob_entry)
+int insert_rob_entry(APEX_CPU* cpu, ROB_Entry* new_rob_entry)
 {
     int free_entry = cpu->rob.tail;
     cpu->rob.rob_entry[free_entry].free = new_rob_entry->free;
@@ -77,7 +68,7 @@ int push_rob_entry(APEX_CPU* cpu, ROB_Entry* new_rob_entry)
 }
 
 
-int commit_rob_entry(APEX_CPU* cpu)
+int save_rob_entry(APEX_CPU* cpu)
 {
     if (cpu->rob.rob_entry[cpu->rob.head].status && !cpu->rob.rob_entry[cpu->rob.head].free)
     {
@@ -87,12 +78,12 @@ int commit_rob_entry(APEX_CPU* cpu)
         {
             int rrat_index = cpu->rob.rob_entry[cpu->rob.head].arch_rd;
             int phys_reg_to_be_commit = cpu->rob.rob_entry[cpu->rob.head].phys_rd;
-            commit_register(cpu, rrat_index, phys_reg_to_be_commit); // commits in R-RAT and deallocates phys reg in URF
+            commit_reg(cpu, rrat_index, phys_reg_to_be_commit); // commits in R-RAT and deallocates phys reg in URF
             
             if (strcmp(cpu->rob.rob_entry[cpu->rob.head].opcode, "JAL") == 0)
             {
                 int branch_id = cpu->rob.rob_entry[cpu->rob.head].branch_id;
-                deallocate_branch_id(cpu, branch_id);
+                release_branch_id(cpu, branch_id);
             }
         }
     
@@ -101,7 +92,7 @@ int commit_rob_entry(APEX_CPU* cpu)
             if (strcmp(cpu->rob.rob_entry[cpu->rob.head].opcode, "BZ") == 0 || strcmp(cpu->rob.rob_entry[cpu->rob.head].opcode, "BNZ") == 0 || strcmp(cpu->rob.rob_entry[cpu->rob.head].opcode, "JUMP") == 0)
             {
                 int branch_id = cpu->rob.rob_entry[cpu->rob.head].branch_id;
-                deallocate_branch_id(cpu, branch_id);
+                release_branch_id(cpu, branch_id);
             }
         }
 
@@ -128,7 +119,7 @@ int commit_rob_entry(APEX_CPU* cpu)
             cpu->commitments++;
         }
 
-        if (cpu->fill_in_rob > 2 && is_rob_empty(cpu))
+        if (cpu->fill_in_rob > 2 && check_rob_empty(cpu))
         {
             cpu->simulation_completed = 1;
         }
@@ -136,7 +127,7 @@ int commit_rob_entry(APEX_CPU* cpu)
         return 1;
     }
 
-    if (cpu->fill_in_rob > 2 && is_rob_empty(cpu) && cpu->mem_cycle == 1 && strcmp(cpu->stage[MEM].opcode, "") == 0)
+    if (cpu->fill_in_rob > 2 && check_rob_empty(cpu) && cpu->mem_cycle == 1 && strcmp(cpu->stage[MEM].opcode, "") == 0)
     {
         cpu->simulation_completed = 1;
     }
@@ -145,7 +136,7 @@ int commit_rob_entry(APEX_CPU* cpu)
 }
 
 
-int update_rob_entry(APEX_CPU* cpu, enum STAGES FU_type)
+int modify_rob_entry(APEX_CPU* cpu, enum STAGES FU_type)
 {
     int rob_entry_id = cpu->stage[FU_type].rob_entry_id;
     cpu->rob.rob_entry[rob_entry_id].status = 1;
@@ -153,7 +144,7 @@ int update_rob_entry(APEX_CPU* cpu, enum STAGES FU_type)
 }
 
 
-void remove_store_from_rob(APEX_CPU* cpu)
+void delete_str_from_rob(APEX_CPU* cpu)
 {
     int head = cpu->rob.head;
     cpu->rob.rob_entry[head].free = 1;
@@ -166,7 +157,7 @@ void remove_store_from_rob(APEX_CPU* cpu)
 }
 
 
-void print_rob_for_debug(APEX_CPU* cpu)
+void display_rob_for_dbg(APEX_CPU* cpu)
 {
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Details of ROB State\n");
@@ -183,7 +174,7 @@ void print_rob_for_debug(APEX_CPU* cpu)
 }
 
 
-void display_rob(APEX_CPU* cpu)
+void print_rob(APEX_CPU* cpu)
 {
     printf("-------------------------------------- ROB --------------------------------------\n");
     for (int i = 0; i < ROB_ENTRIES_NUMBER; i++)
@@ -238,7 +229,7 @@ void display_rob(APEX_CPU* cpu)
 }
 
 
-int find_branch_in_rob(APEX_CPU* cpu)
+int search_branch_in_rob(APEX_CPU* cpu)
 {
     for (int i = 0; i < ROB_ENTRIES_NUMBER; i++)
     {
@@ -250,9 +241,9 @@ int find_branch_in_rob(APEX_CPU* cpu)
     return -1;
 }
 
-void flush_rob_previous_version(APEX_CPU* cpu)
+void flush_rob_old_stage(APEX_CPU* cpu)
 {
-    int rob_id = find_branch_in_rob(cpu);
+    int rob_id = search_branch_in_rob(cpu);
     int new_tail = rob_id;
     new_tail++;
     if (new_tail == ROB_ENTRIES_NUMBER)
@@ -304,7 +295,7 @@ void flush_rob_previous_version(APEX_CPU* cpu)
         }
     }
 
-    if (is_rob_empty(cpu))
+    if (check_rob_empty(cpu))
     {
         cpu->rob.head = 0;
         cpu->rob.tail = 0;
@@ -318,7 +309,7 @@ void flush_rob_previous_version(APEX_CPU* cpu)
 
 void flush_rob(APEX_CPU* cpu)
 {
-    int branch_index_in_rob = find_branch_in_rob(cpu);
+    int branch_index_in_rob = search_branch_in_rob(cpu);
 
     cpu->rob.tail--;
     if (cpu->rob.tail < 0)
@@ -337,7 +328,7 @@ void flush_rob(APEX_CPU* cpu)
                     if (cpu->rob.rob_entry[cpu->rob.tail].phys_rd != -1)
                     {
                         int phys_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].phys_rd;
-                        deallocate_phys_reg(cpu, phys_reg_to_deallocate);
+                        release_pr(cpu, phys_reg_to_deallocate);
                     }
                     cpu->rob.rob_entry[cpu->rob.tail].free = 1;
                 }
@@ -353,7 +344,7 @@ void flush_rob(APEX_CPU* cpu)
                     if (cpu->rob.rob_entry[cpu->rob.tail].phys_rd != -1)
                     {
                         int phys_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].phys_rd;
-                        deallocate_phys_reg(cpu, phys_reg_to_deallocate);
+                        release_pr(cpu, phys_reg_to_deallocate);
                     }
                     cpu->rob.rob_entry[cpu->rob.tail].free = 1;
                 }
@@ -368,7 +359,7 @@ void flush_rob(APEX_CPU* cpu)
                     if (cpu->rob.rob_entry[cpu->rob.tail].phys_rd != -1)
                     {
                         int phys_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].phys_rd;
-                        deallocate_phys_reg(cpu, phys_reg_to_deallocate);
+                        release_pr(cpu, phys_reg_to_deallocate);
                     }
                     cpu->rob.rob_entry[cpu->rob.tail].free = 1;
                 }

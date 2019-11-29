@@ -1,7 +1,4 @@
 /*  lsq_driver.c
- *
- *  Author :
- *  Ulugbek Ergashev (uergash1@binghamton.edu)
  *  State University of New York, Binghamton
  */
 
@@ -13,7 +10,7 @@
 #include "rob_driver.h"
 
 
-int is_lsq_entry_free(APEX_CPU* cpu)
+int check_lsq_free(APEX_CPU* cpu)
 {
     if (cpu->lsq.lsq_entry[cpu->lsq.tail].free) 
     {
@@ -23,7 +20,7 @@ int is_lsq_entry_free(APEX_CPU* cpu)
 }
 
 
-int push_lsq_entry(APEX_CPU* cpu, LSQ_Entry* new_lsq_entry)
+int insert_lsq_entry(APEX_CPU* cpu, LSQ_Entry* new_lsq_entry)
 {
     int free_entry = cpu->lsq.tail;
     cpu->lsq.lsq_entry[free_entry].free = new_lsq_entry->free;
@@ -64,7 +61,7 @@ int push_lsq_entry(APEX_CPU* cpu, LSQ_Entry* new_lsq_entry)
 }
 
 
-void get_instruction_to_MEM(APEX_CPU* cpu)
+void process_ins_to_MEM(APEX_CPU* cpu)
 {
     int push_to_mem = 0;
     int entry = cpu->lsq.head;
@@ -79,7 +76,7 @@ void get_instruction_to_MEM(APEX_CPU* cpu)
                 {
                     push_to_mem = 1;
                     // delete from ROB
-                    remove_store_from_rob(cpu);
+                    delete_str_from_rob(cpu);
                 }
             }
         }
@@ -124,7 +121,7 @@ void get_instruction_to_MEM(APEX_CPU* cpu)
 }
 
 
-void update_lsq_entry(APEX_CPU* cpu, enum STAGES FU_type)
+void modify_lsq_entry(APEX_CPU* cpu, enum STAGES FU_type)
 {
     int LSQ_index = cpu->stage[FU_type].LSQ_index;
     cpu->lsq.lsq_entry[LSQ_index].mem_address = cpu->stage[FU_type].buffer;
@@ -132,7 +129,7 @@ void update_lsq_entry(APEX_CPU* cpu, enum STAGES FU_type)
 }
 
 
-void broadcast_result_into_lsq(APEX_CPU* cpu, enum STAGES FU_type)
+void distribute_result_to_lsq(APEX_CPU* cpu, enum STAGES FU_type)
 {
     for (int i = 0; i < LSQ_ENTRIES_NUMBER; i++) 
     {
@@ -146,7 +143,7 @@ void broadcast_result_into_lsq(APEX_CPU* cpu, enum STAGES FU_type)
 }
 
 
-void print_lsq_for_debug(APEX_CPU* cpu)
+void display_lsq_for_debug(APEX_CPU* cpu)
 {
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Details of LSQ State\n");
@@ -164,7 +161,7 @@ void print_lsq_for_debug(APEX_CPU* cpu)
 }
 
 
-void display_lsq(APEX_CPU* cpu)
+void print_lsq(APEX_CPU* cpu)
 {
     printf("------------------------------- Load Store Queue --------------------------------\n");
     for (int i = 0; i < LSQ_ENTRIES_NUMBER; i++) 
@@ -220,7 +217,7 @@ void display_lsq(APEX_CPU* cpu)
 }
 
 
-int is_lsq_empty(APEX_CPU* cpu)
+int check_lsq_empty(APEX_CPU* cpu)
 {
     for (int i = 0; i < LSQ_ENTRIES_NUMBER; i++) 
     {
@@ -278,14 +275,13 @@ void flush_lsq(APEX_CPU* cpu, int branch_id)
         }
     }
 
-    if (is_lsq_empty(cpu)) 
+    if (check_lsq_empty(cpu)) 
     {
         cpu->lsq.tail = 0;
         cpu->lsq.head = 0;
     }
     else 
     {
-    //int previous_branch_id = initial_branch_id--;
         int new_tail = cpu->lsq.head;
         while (!cpu->lsq.lsq_entry[new_tail].free) 
         {
@@ -300,7 +296,7 @@ void flush_lsq(APEX_CPU* cpu, int branch_id)
 }
 
 
-void process_lsq(APEX_CPU* cpu)
+void lsq_transition(APEX_CPU* cpu)
 {
-    get_instruction_to_MEM(cpu);
+    process_ins_to_MEM(cpu);
 }

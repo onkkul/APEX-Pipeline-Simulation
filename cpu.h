@@ -1,8 +1,5 @@
 /* cpu.h
  *  Contains various CPU and Pipeline Data structures
- *
- *  Author :
- *  Ulugbek Ergashev (uergash1@binghamton.edu)
  *  State University of New York, Binghamton
  */
 

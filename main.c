@@ -1,23 +1,10 @@
 /*  main.c
- *
- *  Author :
- *  Ulugbek Ergashev (uergash1@binghamton.edu)
  *  State University of New York, Binghamton
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-/*#define IQ_ENTRIES_NUMBER 3
-#define ROB_ENTRIES_NUMBER 3
-#define URF_ENTRIES_NUMBER 10
-#define RAT_ENTRIES_NUMBER 4
-#define RRAT_ENTRIES_NUMBER 4
-#define BIS_ENTRIES_NUMBER 3*/
-
-
 #include "cpu.h"
 
 

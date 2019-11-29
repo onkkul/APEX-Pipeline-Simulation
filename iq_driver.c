@@ -1,7 +1,5 @@
 /*  iq_driver.c
  *
- *  Author :
- *  Ulugbek Ergashev (uergash1@binghamton.edu)
  *  State University of New York, Binghamton
  */
 
@@ -14,7 +12,7 @@
 #include "iq_driver.h"
 
 
-int is_iq_entry_free(APEX_CPU* cpu)
+int check_iq_entry_free(APEX_CPU* cpu)
 {
     for (int i = 0; i < IQ_ENTRIES_NUMBER; i++)
     {
@@ -30,7 +28,7 @@ int is_iq_entry_free(APEX_CPU* cpu)
 
 // Before calling this function, make sure you first call
 // is_iq_entry_free function explicitly
-int push_iq_entry(APEX_CPU* cpu, ISSUE_QUEUE_Entry* new_iq_entry)
+int insert_iq_entry(APEX_CPU* cpu, ISSUE_QUEUE_Entry* new_iq_entry)
 {
     int free_entry = cpu->iq.free_entry;
     cpu->iq.iq_entry[free_entry].pc = new_iq_entry->pc;
@@ -67,7 +65,7 @@ int push_iq_entry(APEX_CPU* cpu, ISSUE_QUEUE_Entry* new_iq_entry)
 
 
 //I dont know how to add R3 for STR in this
-int get_instruction_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
+int fetch_ins_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
 {
     int process = 1;
     if (FU_Type == Mul_FU && cpu->stage[Mul_FU].stalled)
@@ -157,7 +155,7 @@ int update_counters(APEX_CPU* cpu)
 }
 
 
-int broadcast_result_into_iq(APEX_CPU* cpu, enum STAGES FU_type)
+int distribute_result_to_iq(APEX_CPU* cpu, enum STAGES FU_type)
 {
     for (int i = 0; i < IQ_ENTRIES_NUMBER; i++)
     {
@@ -184,7 +182,7 @@ int broadcast_result_into_iq(APEX_CPU* cpu, enum STAGES FU_type)
 }
 
 
-void print_iq_for_debug(APEX_CPU* cpu)
+void display_iq_for_debug(APEX_CPU* cpu)
 {
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Details of IQ State\n");
@@ -203,7 +201,7 @@ void print_iq_for_debug(APEX_CPU* cpu)
 }
 
 
-void display_iq(APEX_CPU* cpu)
+void print_iq(APEX_CPU* cpu)
 {
     int iq_empty = 1;
     printf("\n--------------------------------- Issue Queue -----------------------------------\n");
@@ -293,11 +291,11 @@ void flush_iq(APEX_CPU* cpu, int branch_id)
 }
 
 
-int process_iq(APEX_CPU* cpu)
+int iq_transition(APEX_CPU* cpu)
 {
-    //print_iq_for_debug(cpu);
-    get_instruction_for_FUs(cpu, Int_FU);
-    get_instruction_for_FUs(cpu, Mul_FU);
+    
+    fetch_ins_for_FUs(cpu, Int_FU);
+    fetch_ins_for_FUs(cpu, Mul_FU);
     update_counters(cpu);
     return 0;
 }

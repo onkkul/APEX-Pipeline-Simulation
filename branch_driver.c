@@ -8,7 +8,7 @@
 #include "lsq_driver.h"
 #include "branch_driver.h"
 
-int is_bis_entry_free(APEX_CPU* cpu)
+int check_bis_free(APEX_CPU* cpu)
 {
     if (cpu->bis.bis_entry[cpu->bis.tail].free)
     {
@@ -17,7 +17,7 @@ int is_bis_entry_free(APEX_CPU* cpu)
     return 0;
 }
 
-int get_bis_entry(APEX_CPU* cpu)
+int pull_bis(APEX_CPU* cpu)
 {
     int free_bis_entry_id = cpu->bis.tail;
     cpu->bis.bis_entry[cpu->bis.tail].free = 0;
@@ -31,12 +31,12 @@ int get_bis_entry(APEX_CPU* cpu)
     return free_bis_entry_id;
 }
 
-void deallocate_branch_id(APEX_CPU* cpu, int branch_id)
+void release_branch_id(APEX_CPU* cpu, int branch_id)
 {
     cpu->bis.bis_entry[branch_id].free = 1;
 }
 
-void flush_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
+void flushing_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
 {
     while (branch_id <= cpu->last_branch_id)
     {
@@ -58,7 +58,7 @@ void flush_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
     }
 }
 
-void flush_fetch_decode(APEX_CPU* cpu)
+void flushing_F_D(APEX_CPU* cpu)
 {
     strcpy(cpu->stage[F].opcode, "");
     strcpy(cpu->stage[DRF].opcode, "");
@@ -66,7 +66,7 @@ void flush_fetch_decode(APEX_CPU* cpu)
     cpu->stage[DRF].stalled = 0;
 }
 
-void release_bis_ids(APEX_CPU* cpu, int branch_id)
+void clear_bis_ids(APEX_CPU* cpu, int branch_id)
 {
     int initial_branch_id = branch_id;
     // do not release current bis id
@@ -114,14 +114,14 @@ void release_bis_ids(APEX_CPU* cpu, int branch_id)
     }
 }
 
-void flush_instructions(APEX_CPU* cpu)
+void flush_ins(APEX_CPU* cpu)
 {
     int branch_id = cpu->stage[Int_FU].branch_id;
-    flush_FUs(cpu, branch_id, Mul_FU);
-    flush_FUs(cpu, branch_id, MEM);
+    flushing_FUs(cpu, branch_id, Mul_FU);
+    flushing_FUs(cpu, branch_id, MEM);
     flush_iq(cpu, branch_id);
     flush_lsq(cpu, branch_id);
     flush_rob(cpu);
-    flush_fetch_decode(cpu);
-    release_bis_ids(cpu, branch_id);
+    flushing_F_D(cpu);
+    clear_bis_ids(cpu, branch_id);
 }
