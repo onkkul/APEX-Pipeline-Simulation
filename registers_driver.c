@@ -41,18 +41,33 @@ int pull_pr(APEX_CPU* cpu)
 int allocate_pr(APEX_CPU* cpu, int arch_reg)
 {
     int free_phys_reg = pull_pr(cpu);
+
     cpu->prf[free_phys_reg].free = 0;   // this phys reg is not free now
     cpu->prf[free_phys_reg].valid = 0;  // this phys reg is not valid now
-    cpu->allocate[arch_reg].phys_reg = free_phys_reg;
+    cpu->prf[free_phys_reg].which_arch_reg = arch_reg;
+
+    cpu->arf[arch_reg].allocate_phys_reg = free_phys_reg;
+    // cpu->prf[arch_reg].allocate_phys_reg = free_phys_reg;
+
     return free_phys_reg;
 }
 
 
-void release_pr(APEX_CPU* cpu, int phys_reg)
+void release_pr(APEX_CPU* cpu, int arch_reg, int phys_reg)
 {
     if (phys_reg != -1)
     {
+        int temp = cpu->arf[arch_reg].allocate_phys_reg;
+        cpu->arf[arch_reg].value = cpu->prf[temp].value;
+        cpu->arf[arch_reg].valid = 1; 
+        // cpu->arf[arch_reg].free
+        // cpu->arf[arch_reg].valid
+        cpu->arf[arch_reg].deallocate_commited_phys_reg = cpu->arf[arch_reg].allocate_phys_reg;
+        cpu->arf[arch_reg].allocate_phys_reg = -1;
+        cpu->prf[phys_reg].which_arch_reg = -1;
         cpu->prf[phys_reg].free = 1;
+        cpu->prf[phys_reg].valid = 1;
+
     }
 }
 
@@ -60,9 +75,14 @@ void release_pr(APEX_CPU* cpu, int phys_reg)
 void commit_reg(APEX_CPU* cpu, int arch_reg, int phys_reg)
 {
 
-    int phys_reg_to_deallocate = cpu->deallocate[arch_reg].commited_phys_reg;
-    release_pr(cpu, phys_reg_to_deallocate);
-    cpu->deallocate[arch_reg].commited_phys_reg = phys_reg;
+    int phys_reg_to_deallocate = cpu->arf[arch_reg].allocate_phys_reg;
+
+    release_pr(cpu, arch_reg, phys_reg_to_deallocate);
+
+    // cpu->prf[arch_reg].deallocate_commited_phys_reg = phys_reg;
+
+    // cpu->arf[arch_reg].deallocate_commited_phys_reg = phys_reg;
+    
 }
 
 
@@ -71,7 +91,7 @@ void rename_src1(APEX_CPU* cpu)
 
     CPU_Stage* stage = &cpu->stage[DRF];
     int arch_rs1 = stage->arch_rs1;
-    stage->phys_rs1 = cpu->allocate[arch_rs1].phys_reg;
+    stage->phys_rs1 = cpu->arf[arch_rs1].allocate_phys_reg;
 
 }
 
@@ -81,7 +101,7 @@ void rename_src2(APEX_CPU* cpu)
 
     CPU_Stage* stage = &cpu->stage[DRF];
     int arch_rs2 = stage->arch_rs2;
-    stage->phys_rs2 = cpu->allocate[arch_rs2].phys_reg;
+    stage->phys_rs2 = cpu->arf[arch_rs2].allocate_phys_reg;
 
 }
 
@@ -90,7 +110,7 @@ void rename_src3(APEX_CPU* cpu)
 
     CPU_Stage* stage = &cpu->stage[DRF];
     int arch_rs3 = stage->arch_rs3;
-    stage->phys_rs3 = cpu->allocate[arch_rs3].phys_reg;
+    stage->phys_rs3 = cpu->arf[arch_rs3].allocate_phys_reg;
 
 }
 
@@ -143,7 +163,7 @@ void commit_prf_allocate(APEX_CPU* cpu, int branch_id)
 
     for (int j=0; j < ALLOCATE_PHY_REGISTER; j++)
     {
-        cpu->bis.backup_entry[branch_id].allocate[j].phys_reg = cpu->allocate[j].phys_reg;
+        cpu->bis.backup_entry[branch_id].arf[j].allocate_phys_reg = cpu->arf[j].allocate_phys_reg;
     }
 }
 
@@ -154,7 +174,7 @@ void restore_prf_allocate(APEX_CPU* cpu)
 
     for (int j=0; j < ALLOCATE_PHY_REGISTER; j++)
     {
-        cpu->allocate[j].phys_reg = cpu->bis.backup_entry[branch_id].allocate[j].phys_reg;
+        cpu->arf[j].allocate_phys_reg = cpu->bis.backup_entry[branch_id].arf[j].allocate_phys_reg;
     }
 }
 
@@ -173,6 +193,19 @@ void display_prf_for_debug(APEX_CPU* cpu)
     printf("---------------------------------------------------------------------------------\n\n");
 }
 
+void display_arf_for_debug(APEX_CPU* cpu)
+{
+    printf("------------------------------ Details of arf State -----------------------------\n");
+    for (int i = 0; i < PRF_ENTRIES_NUMBER; i++)
+    {
+        if (!cpu->arf[i].free)
+        {
+            printf("| arf[%d] = %d, VALID = %d |",i, cpu->arf[i].value, cpu->arf[i].valid);
+        }
+    }
+    printf("\n");
+    printf("---------------------------------------------------------------------------------\n\n");
+}
 
 void display_datamem_debug(APEX_CPU* cpu)
 {
@@ -192,13 +225,13 @@ void display_datamem_debug(APEX_CPU* cpu)
 void print_allocate(APEX_CPU* cpu)
 {
     int allocate_empty = 1;
-    printf("-------------------------------------- allocate --------------------------------------\n");
+    printf("-------------------------------------- arf allocate--------------------------------------\n");
     for (int i = 0; i < ALLOCATE_PHY_REGISTER; i++)
     {
-        if (cpu->allocate[i].phys_reg != -1)
+        if (cpu->arf[i].allocate_phys_reg != -1)
         {
             allocate_empty = 0;
-            printf("| allocate[%d] = U%d |",i, cpu->allocate[i].phys_reg);
+            printf("| arf[%d] = U%d |",i, cpu->arf[i].allocate_phys_reg);
         }
     }
 
@@ -214,13 +247,13 @@ void print_allocate(APEX_CPU* cpu)
 void print_deallocate(APEX_CPU* cpu)
 {
     int deallocate_empty = 1;
-    printf("------------------------------------- deallocate -------------------------------------\n");
+    printf("------------------------------------- arf deallocate-------------------------------------\n");
     for (int i = 0; i < DEALLOCATE_PHY_REGISTER; i++)
     {
-        if (cpu->deallocate[i].commited_phys_reg != -1)
+        if (cpu->arf[i].deallocate_commited_phys_reg != -1)
         {
             deallocate_empty = 0;
-            printf("| R-allocate[%d] = U%d |",i, cpu->deallocate[i].commited_phys_reg);
+            printf("| R-arf[%d] = U%d |",i, cpu->arf[i].deallocate_commited_phys_reg);
         }
     }
 
@@ -236,12 +269,12 @@ void print_deallocate(APEX_CPU* cpu)
 void display_stored_allocate(APEX_CPU* cpu, int branch_id)
 {
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Details of saved allocate State for Branch ID: %d\n", branch_id);
+    printf("Details of saved prf State for Branch ID: %d\n", branch_id);
     for (int i = 0; i < ALLOCATE_PHY_REGISTER; i++)
     {
-        if (cpu->bis.backup_entry[branch_id].allocate[i].phys_reg != -1)
+        if (cpu->bis.backup_entry[branch_id].arf[i].allocate_phys_reg != -1)
         {
-            printf("| allocate[%d] = U%d |",i, cpu->bis.backup_entry[branch_id].allocate[i].phys_reg);
+            printf("| prf[%d] = U%d |",i, cpu->bis.backup_entry[branch_id].arf[i].allocate_phys_reg);
         }
     }
     printf("\n");
@@ -262,8 +295,21 @@ void print_prf(APEX_CPU* cpu)
     {
         if (!cpu->prf[i].free)
         {
-            printf("         |\tprf[%d]\t|\tValue = %d\t|\tStatus = %d\t|\n",i, cpu->prf[i].value, cpu->prf[i].valid);
+            printf("         |\tprf[%d]\t|\tValue = %d\t|\tStatus = %d\t|\tWhich_Arch = %d\t|\n",i, cpu->prf[i].value, cpu->prf[i].valid, cpu->prf[i].which_arch_reg);
         }
+    }
+    printf("================================================================================\n");
+}
+
+void print_arf(APEX_CPU* cpu)
+{
+    printf("\n======================== STATE OF ARCH REGISTER FILE ========================\n");
+    for (int i = 0; i < ARF_ENTRIES_NUMBER; i++)
+    {
+        // if (!cpu->arf[i].free)
+        // {
+            printf("         |\tarf[%d]\t|\tValue = %d\t|\tStatus = %d\t|\n",i, cpu->arf[i].value, cpu->arf[i].valid);
+        // }
     }
     printf("================================================================================\n");
 }
@@ -271,17 +317,18 @@ void print_prf(APEX_CPU* cpu)
 
 void print_datamem(APEX_CPU* cpu)
 {
-    printf("\n============================= STATE OF DATA MEMORY =============================\n");
-    for (int i = 0; i < 100; i++)
+  printf("\n============================= STATE OF DATA MEMORY =============================\n");
+    /*for (int i = 0; i < 100; i++)
     {
         printf("                     |\tMEM[%d]\t|\tData Value = %d\t|\n",i, cpu->data_memory[i]);
     }
-    printf("================================================================================\n\n");
+    printf("================================================================================\n\n");*/
 }
 
 
 void print_rm(APEX_CPU* cpu)
 {
     print_prf(cpu);
+    print_arf(cpu);
     print_datamem(cpu);
 }

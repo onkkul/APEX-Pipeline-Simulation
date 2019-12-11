@@ -44,26 +44,33 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
     /* Initialize PC, Registers and all pipeline stages */
     cpu->pc = 4000;
 
-    // Initialize prf
+    // Initialize Arf
+    for (int i=0; i<ARF_ENTRIES_NUMBER; i++)
+    {
+        cpu->arf[i].value = 0; // initial value for registers
+        cpu->arf[i].free = 1; // all phyisical registers are FREE
+        cpu->arf[i].valid = 0; // all values are NOT valid
+
+        // Initialize allocate
+        cpu->arf[i].allocate_phys_reg = -1;
+
+        // Initialize deallocate
+        cpu->arf[i].deallocate_commited_phys_reg = -1;
+    }
+
+
+        // Initialize prf
     for (int i=0; i<PRF_ENTRIES_NUMBER; i++)
     {
         cpu->prf[i].value = 0; // initial value for registers
         cpu->prf[i].free = 1; // all phyisical registers are FREE
         cpu->prf[i].valid = 0; // all values are NOT valid
-    }
 
-  // Initialize allocate
-    for (int i=0; i<ALLOCATE_PHY_REGISTER; i++)
-    {
-        cpu->allocate[i].phys_reg = -1; // initially architectural registers point to nowhere
-    }
+        // Initialize allocate
+        cpu->prf[i].which_arch_reg = -1;
 
-    // Initialize deallocate
-    for (int i=0; i<DEALLOCATE_PHY_REGISTER; i++)
-    {
-        cpu->deallocate[i].commited_phys_reg = -1; // initially commited architectural registers point to nowhere
+        // Initialize deallocate
     }
-
 
     cpu->lsq.head = 0;
     cpu->lsq.tail = 0;
@@ -105,7 +112,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
 
         for (int j=0; j < ALLOCATE_PHY_REGISTER; j++)
         {
-            cpu->bis.backup_entry[i].allocate[j].phys_reg = -1;
+            cpu->bis.backup_entry[i].arf[j].allocate_phys_reg = -1;
         }
     }
 

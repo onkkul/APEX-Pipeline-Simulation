@@ -6,7 +6,7 @@ int check_pr_free(APEX_CPU* cpu);
 
 int allocate_pr(APEX_CPU* cpu, int arch_reg);
 
-void release_pr(APEX_CPU* cpu, int phys_reg);
+void release_pr(APEX_CPU* cpu, int arch_reg, int phys_reg);
 
 void commit_reg(APEX_CPU* cpu, int arch_reg, int phys_reg);
 

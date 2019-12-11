@@ -328,7 +328,8 @@ void flush_rob(APEX_CPU* cpu)
                     if (cpu->rob.rob_entry[cpu->rob.tail].phys_rd != -1)
                     {
                         int phys_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].phys_rd;
-                        release_pr(cpu, phys_reg_to_deallocate);
+                        int arch_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].arch_rd;
+                        release_pr(cpu, arch_reg_to_deallocate, phys_reg_to_deallocate);
                     }
                     cpu->rob.rob_entry[cpu->rob.tail].free = 1;
                 }
@@ -344,7 +345,8 @@ void flush_rob(APEX_CPU* cpu)
                     if (cpu->rob.rob_entry[cpu->rob.tail].phys_rd != -1)
                     {
                         int phys_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].phys_rd;
-                        release_pr(cpu, phys_reg_to_deallocate);
+                        int arch_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].arch_rd;
+                        release_pr(cpu, arch_reg_to_deallocate, phys_reg_to_deallocate);
                     }
                     cpu->rob.rob_entry[cpu->rob.tail].free = 1;
                 }
@@ -359,7 +361,8 @@ void flush_rob(APEX_CPU* cpu)
                     if (cpu->rob.rob_entry[cpu->rob.tail].phys_rd != -1)
                     {
                         int phys_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].phys_rd;
-                        release_pr(cpu, phys_reg_to_deallocate);
+                        int arch_reg_to_deallocate = cpu->rob.rob_entry[cpu->rob.tail].arch_rd;
+                        release_pr(cpu, arch_reg_to_deallocate, phys_reg_to_deallocate);
                     }
                     cpu->rob.rob_entry[cpu->rob.tail].free = 1;
                 }
