@@ -56,44 +56,6 @@ void flushing_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
         }
         branch_id++;
     }
-
-    while (branch_id <= cpu->last_branch_id)  //harshal edits
-    {
-        if (cpu->stage[FU_type].branch_id == branch_id)
-        {
-            strcpy(cpu->stage[FU_type].opcode, "");
-            if (FU_type == Mul_FU2)
-            {
-                cpu->mul_cycle = 1;
-                cpu->stage[Mul_FU].stalled = 0;
-            }
-            if (FU_type == MEM)
-            {
-                cpu->mem_cycle = 1;
-                cpu->stage[MEM].stalled = 0;
-            }
-        }
-        branch_id++;
-    }
-
-    while (branch_id <= cpu->last_branch_id)
-    {
-        if (cpu->stage[FU_type].branch_id == branch_id)
-        {
-            strcpy(cpu->stage[FU_type].opcode, "");
-            if (FU_type == Mul_FU)
-            {
-                cpu->mul_cycle = 1;
-                cpu->stage[Mul_FU3].stalled = 0;
-            }
-            if (FU_type == MEM)
-            {
-                cpu->mem_cycle = 1;
-                cpu->stage[MEM].stalled = 0;
-            }
-        }
-        branch_id++;
-    }
 }
 
 void flushing_F_D(APEX_CPU* cpu)
@@ -107,7 +69,7 @@ void flushing_F_D(APEX_CPU* cpu)
 void clear_bis_ids(APEX_CPU* cpu, int branch_id)
 {
     int initial_branch_id = branch_id;
-    
+    // do not release current bis id
     branch_id++;
 
     if (branch_id == BIS_ENTRIES_NUMBER)
