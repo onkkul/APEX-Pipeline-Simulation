@@ -38,12 +38,12 @@ int insert_iq_entry(APEX_CPU* cpu, ISSUE_QUEUE_Entry* new_iq_entry)
     cpu->iq.iq_entry[free_entry].free  = new_iq_entry->free;
     cpu->iq.iq_entry[free_entry].FU_type  = new_iq_entry->FU_type;
     cpu->iq.iq_entry[free_entry].imm  = new_iq_entry->imm;
-
+    
     cpu->iq.iq_entry[free_entry].rs1_ready  = new_iq_entry->rs1_ready;
     cpu->iq.iq_entry[free_entry].phys_rs1  = new_iq_entry->phys_rs1;
     cpu->iq.iq_entry[free_entry].arch_rs1  = new_iq_entry->arch_rs1;
     cpu->iq.iq_entry[free_entry].rs1_value  = new_iq_entry->rs1_value;
-
+    
     cpu->iq.iq_entry[free_entry].rs2_ready  = new_iq_entry->rs2_ready;
     cpu->iq.iq_entry[free_entry].phys_rs2  = new_iq_entry->phys_rs2;
     cpu->iq.iq_entry[free_entry].arch_rs2  = new_iq_entry->arch_rs2;
@@ -53,10 +53,10 @@ int insert_iq_entry(APEX_CPU* cpu, ISSUE_QUEUE_Entry* new_iq_entry)
     cpu->iq.iq_entry[free_entry].phys_rs3  = new_iq_entry->phys_rs3;
     cpu->iq.iq_entry[free_entry].arch_rs3  = new_iq_entry->arch_rs3;
     cpu->iq.iq_entry[free_entry].rs3_value  = new_iq_entry->rs3_value;
-
+    
     cpu->iq.iq_entry[free_entry].phys_rd  = new_iq_entry->phys_rd;
     cpu->iq.iq_entry[free_entry].arch_rd  = new_iq_entry->arch_rd;
-
+    
     cpu->iq.iq_entry[free_entry].LSQ_index  = new_iq_entry->LSQ_index;
     cpu->iq.iq_entry[free_entry].rob_entry_id  = new_iq_entry->rob_entry_id;
     cpu->iq.iq_entry[free_entry].branch_id  = new_iq_entry->branch_id;
@@ -69,6 +69,16 @@ int fetch_ins_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
 {
     int process = 1;
     if (FU_Type == Mul_FU && cpu->stage[Mul_FU].stalled)
+    {
+        process = 0;
+    }
+
+    if (FU_Type == Mul_FU2 && cpu->stage[Mul_FU2].stalled)  //harshal edits
+    {
+        process = 0;
+    }
+
+    if (FU_Type == Mul_FU3 && cpu->stage[Mul_FU3].stalled) //harshal edits
     {
         process = 0;
     }
@@ -86,7 +96,7 @@ int fetch_ins_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
                 {
                     int branch_id = cpu->iq.iq_entry[i].branch_id;
                     int branch_phys_src = cpu->bis.bis_entry[branch_id].phys_src;
-                    if (cpu->prf[branch_phys_src].valid)
+                    if (cpu->urf[branch_phys_src].valid)
                     {
                         max_counter = cpu->iq.iq_entry[i].counter;
                         issue_instruction_index = i;
@@ -110,7 +120,7 @@ int fetch_ins_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
             cpu->stage[FU_Type].arch_rs1 = cpu->iq.iq_entry[issue_instruction_index].arch_rs1;
             cpu->stage[FU_Type].phys_rs1 = cpu->iq.iq_entry[issue_instruction_index].phys_rs1;
             cpu->stage[FU_Type].rs1_value = cpu->iq.iq_entry[issue_instruction_index].rs1_value;
-
+            
             cpu->stage[FU_Type].arch_rs2 = cpu->iq.iq_entry[issue_instruction_index].arch_rs2;
             cpu->stage[FU_Type].phys_rs2 = cpu->iq.iq_entry[issue_instruction_index].phys_rs2;
             cpu->stage[FU_Type].rs2_value = cpu->iq.iq_entry[issue_instruction_index].rs2_value;
@@ -121,10 +131,10 @@ int fetch_ins_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
 
             cpu->stage[FU_Type].phys_rd = cpu->iq.iq_entry[issue_instruction_index].phys_rd;
             cpu->stage[FU_Type].arch_rd = cpu->iq.iq_entry[issue_instruction_index].arch_rd;
-
+            
             cpu->stage[FU_Type].imm = cpu->iq.iq_entry[issue_instruction_index].imm;
-
-
+            
+            
             cpu->stage[FU_Type].rob_entry_id = cpu->iq.iq_entry[issue_instruction_index].rob_entry_id;
             cpu->stage[FU_Type].branch_id = cpu->iq.iq_entry[issue_instruction_index].branch_id;
             cpu->stage[FU_Type].LSQ_index = cpu->iq.iq_entry[issue_instruction_index].LSQ_index;
@@ -150,7 +160,7 @@ int update_counters(APEX_CPU* cpu)
             cpu->iq.iq_entry[i].counter++;
         }
     }
-
+    
     return 0;
 }
 
@@ -166,12 +176,12 @@ int distribute_result_to_iq(APEX_CPU* cpu, enum STAGES FU_type)
                 cpu->iq.iq_entry[i].rs1_value = cpu->stage[FU_type].buffer;
                 cpu->iq.iq_entry[i].rs1_ready = 1;
             }
-            if (cpu->iq.iq_entry[i].phys_rs2 == cpu->stage[FU_type].phys_rd)
+            if (cpu->iq.iq_entry[i].phys_rs2 == cpu->stage[FU_type].phys_rd) 
             {
                 cpu->iq.iq_entry[i].rs2_value = cpu->stage[FU_type].buffer;
                 cpu->iq.iq_entry[i].rs2_ready = 1;
             }
-            if (cpu->iq.iq_entry[i].phys_rs3 == cpu->stage[FU_type].phys_rd)
+            if (cpu->iq.iq_entry[i].phys_rs3 == cpu->stage[FU_type].phys_rd) 
             {
                 cpu->iq.iq_entry[i].rs3_value = cpu->stage[FU_type].buffer;
                 cpu->iq.iq_entry[i].rs3_ready = 1;
@@ -205,7 +215,7 @@ void print_iq(APEX_CPU* cpu)
 {
     int iq_empty = 1;
     printf("\n--------------------------------- Issue Queue -----------------------------------\n");
-
+    
     for (int i = 0; i < IQ_ENTRIES_NUMBER; i++)
     {
         if (!cpu->iq.iq_entry[i].free)
@@ -214,10 +224,10 @@ void print_iq(APEX_CPU* cpu)
             printf("| Counter = %d |\tpc(%d)  ", cpu->iq.iq_entry[i].counter, cpu->iq.iq_entry[i].pc);
             CPU_Stage* instruction_to_print = malloc(sizeof(*instruction_to_print));
             strcpy(instruction_to_print->opcode, cpu->iq.iq_entry[i].opcode);
-
+            
             instruction_to_print->arch_rs1 = cpu->iq.iq_entry[i].arch_rs1;
             instruction_to_print->phys_rs1 = cpu->iq.iq_entry[i].phys_rs1;
-
+            
             instruction_to_print->arch_rs2 = cpu->iq.iq_entry[i].arch_rs2;
             instruction_to_print->phys_rs2 = cpu->iq.iq_entry[i].phys_rs2;
 
@@ -226,7 +236,7 @@ void print_iq(APEX_CPU* cpu)
 
             instruction_to_print->arch_rd = cpu->iq.iq_entry[i].arch_rd;
             instruction_to_print->phys_rd = cpu->iq.iq_entry[i].phys_rd;
-
+            
             instruction_to_print->imm = cpu->iq.iq_entry[i].imm;
             print_instruction(0, instruction_to_print);
             printf("\t|\n");
@@ -255,11 +265,11 @@ void flush_iq(APEX_CPU* cpu, int branch_id)
                     cpu->iq.iq_entry[i].free = 1;
                 }
             }
-
+    
             branch_id++;
         }
     }
-
+    
     else
     {
         while (branch_id < BIS_ENTRIES_NUMBER)
@@ -293,9 +303,12 @@ void flush_iq(APEX_CPU* cpu, int branch_id)
 
 int iq_transition(APEX_CPU* cpu)
 {
-
+    
     fetch_ins_for_FUs(cpu, Int_FU);
+    fetch_ins_for_FUs(cpu, Int_FU2);
     fetch_ins_for_FUs(cpu, Mul_FU);
+    fetch_ins_for_FUs(cpu, Mul_FU2);
+    fetch_ins_for_FUs(cpu, Mul_FU3);
     update_counters(cpu);
     return 0;
 }
