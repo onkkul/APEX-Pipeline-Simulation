@@ -49,10 +49,10 @@ int allocate_pr(APEX_CPU* cpu, int arch_reg)
     cpu->prf[free_phys_reg1].free = 0;   // this phys reg is not free now
     cpu->prf[free_phys_reg1].valid = 0;  // this phys reg is not valid now
 
-    printf("%d\t%d~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", free_phys_reg, free_phys_reg1);
+    // printf("%d\t%d~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", free_phys_reg, free_phys_reg1);
 
     cpu->prf[free_phys_reg1].which_arch_reg = arch_reg;
-    printf("%d\t%d~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", arch_reg, cpu->prf[free_phys_reg1].which_arch_reg);
+    // printf("%d\t%d~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", arch_reg, cpu->prf[free_phys_reg1].which_arch_reg);
     cpu->arf[arch_reg].allocate_phys_reg = free_phys_reg1;
     // cpu->prf[arch_reg].allocate_phys_reg = free_phys_reg;
 
@@ -70,11 +70,11 @@ void release_pr(APEX_CPU* cpu, int arch_reg, int phys_reg)
     {
       // print_arf(cpu);
         int temp = cpu->arf[arch_reg].allocate_phys_reg;
-        printf("\ncpu->prf[temp].value=%d\n",cpu->prf[temp].value);
+        // printf("\ncpu->prf[temp].value=%d\n",cpu->prf[temp].value);
 
         cpu->arf[arch_reg].value = cpu->prf[phys_reg].value;
 
-        printf("\ncpu->arf[arch_reg].value=%d\n",cpu->arf[arch_reg].value);
+        // printf("\ncpu->prf[phys_reg].value=%d\n",cpu->prf[phys_reg].value);
 
         // cpu->arf[arch_reg].free = 0;
         cpu->arf[arch_reg].valid = 1;
@@ -95,13 +95,33 @@ void commit_reg(APEX_CPU* cpu, int arch_reg, int phys_reg)
 {
 
     // int phys_reg_to_deallocate = cpu->arf[arch_reg].allocate_phys_reg;
-
+    // printf("\n---IN commit_reg---cpu->prf[phys_reg].value=%d\n",cpu->prf[phys_reg].value);
     release_pr(cpu, arch_reg, phys_reg);
+
 
     // cpu->prf[arch_reg].deallocate_commited_phys_reg = phys_reg;
 
     // cpu->arf[arch_reg].deallocate_commited_phys_reg = phys_reg;
+    printf("\n======================== STATE OF PHYSICAL REGISTER FILE ========================\n");
+    for (int i = 0; i < PRF_ENTRIES_NUMBER; i++)
+    {
+        // if (!cpu->prf[i].free)
+        // {
+            printf("         |\tprf[%d]\t|\tValue = %d\t|\tStatus = %d\t|\tWhich_Arch = %d\t|\n",i, cpu->prf[i].value, cpu->prf[i].valid, cpu->prf[i].which_arch_reg);
+        // }
+    }
+    printf("================================================================================\n");
 
+
+    printf("\n======================== STATE OF ARCH REGISTER FILE ========================\n");
+    for (int i = 0; i < ARF_ENTRIES_NUMBER; i++)
+    {
+        // if (!cpu->arf[i].free)
+        // {
+            printf("         |\tarf[%d]\t|\tValue = %d\t|\tStatus = %d\t|\n",i, cpu->arf[i].value, cpu->arf[i].valid);
+        // }
+    }
+    printf("================================================================================\n");
 }
 
 
@@ -115,7 +135,11 @@ void rename_src1(APEX_CPU* cpu)
 
       if (cpu->arf[arch_rs1].allocate_phys_reg == -1)
       {
-        cpu->arf[arch_rs1].allocate_phys_reg = allocate_pr(cpu, arch_rs1);
+        int fre_reg = allocate_pr(cpu, arch_rs1);
+        cpu->arf[arch_rs1].allocate_phys_reg = fre_reg;
+        cpu->prf[fre_reg].free = 0;   // this phys reg is not free now
+        cpu->prf[fre_reg].valid = 1;  // this phys reg is not valid now
+
       }
 
       stage->phys_rs1 = cpu->arf[arch_rs1].allocate_phys_reg;
@@ -128,10 +152,12 @@ void rename_src1(APEX_CPU* cpu)
 
       else
       {
-        cpu->prf[stage->phys_rs1].value = cpu->arf[stage->arch_rs1].value;
-        cpu->arf[stage->arch_rs1].valid = 1;
-        stage->rs1_value = cpu->arf[stage->arch_rs1].value;
-        stage->rs1_valid = 1;
+        // cpu->prf[stage->phys_rs1].value = cpu->arf[stage->arch_rs1].value;
+        // // cpu->arf[stage->arch_rs1].valid = 1;
+        // // stage->rs1_value = cpu->arf[stage->arch_rs1].value;
+        // cpu->prf[stage->phys_rs1].valid = 1;
+        // stage->rs1_value = cpu->prf[stage->phys_rs1].value;
+        // stage->rs1_valid = 1;
       }
 
 
@@ -146,7 +172,11 @@ void rename_src2(APEX_CPU* cpu)
 
     if (cpu->arf[arch_rs2].allocate_phys_reg == -1)
     {
-      cpu->arf[arch_rs2].allocate_phys_reg = allocate_pr(cpu, arch_rs2);
+      int fre_reg = allocate_pr(cpu, arch_rs2);
+      cpu->arf[arch_rs2].allocate_phys_reg = fre_reg;
+      cpu->prf[fre_reg].free = 0;   // this phys reg is not free now
+      cpu->prf[fre_reg].valid = 1;  // this phys reg is not valid now
+      // cpu->arf[arch_rs2].allocate_phys_reg = allocate_pr(cpu, arch_rs2);
     }
 
     stage->phys_rs2 = cpu->arf[arch_rs2].allocate_phys_reg;
@@ -159,10 +189,10 @@ void rename_src2(APEX_CPU* cpu)
     }
     else
     {
-      cpu->prf[stage->phys_rs2].value = cpu->arf[stage->arch_rs2].value;
-      cpu->arf[stage->arch_rs2].valid = 1;
-      stage->rs2_value = cpu->arf[stage->arch_rs2].value;
-      stage->rs2_valid = 1;
+      // cpu->prf[stage->phys_rs2].value = cpu->arf[stage->arch_rs2].value;
+      // cpu->arf[stage->arch_rs2].valid = 1;
+      // stage->rs2_value = cpu->arf[stage->arch_rs2].value;
+      // stage->rs2_valid = 1;
     }
 
     // stage->phys_rs2 = cpu->arf[arch_rs2].allocate_phys_reg;
@@ -177,7 +207,11 @@ void rename_src3(APEX_CPU* cpu)
 
     if (cpu->arf[arch_rs3].allocate_phys_reg == -1)
     {
-      cpu->arf[arch_rs3].allocate_phys_reg = allocate_pr(cpu, arch_rs3);
+      int fre_reg = allocate_pr(cpu, arch_rs3);
+      cpu->arf[arch_rs3].allocate_phys_reg = fre_reg;
+      cpu->prf[fre_reg].free = 0;   // this phys reg is not free now
+      cpu->prf[fre_reg].valid = 1;  // this phys reg is not valid now
+      // cpu->arf[arch_rs3].allocate_phys_reg = allocate_pr(cpu, arch_rs3);
     }
 
     stage->phys_rs3 = cpu->arf[arch_rs3].allocate_phys_reg;
@@ -189,10 +223,10 @@ void rename_src3(APEX_CPU* cpu)
     }
     else
     {
-      cpu->prf[stage->phys_rs3].value = cpu->arf[stage->arch_rs3].value;
-      cpu->arf[stage->arch_rs3].valid = 1;
-      stage->rs3_value = cpu->arf[stage->arch_rs3].value;
-      stage->rs3_valid = 1;
+      // cpu->prf[stage->phys_rs3].value = cpu->arf[stage->arch_rs3].value;
+      // cpu->arf[stage->arch_rs3].valid = 1;
+      // stage->rs3_value = cpu->arf[stage->arch_rs3].value;
+      // stage->rs3_valid = 1;
     }
 
     // stage->phys_rs3 = cpu->arf[arch_rs3].allocate_phys_reg;
@@ -209,7 +243,7 @@ void read_src1(APEX_CPU* cpu)
       stage->rs1_value = cpu->prf[phys_rs1].value;
       stage->rs1_valid = 1;
   }
-  printf("\nphys_rs1=%d\n",phys_rs1);
+  // printf("\nphys_rs1=%d\n",phys_rs1);
 }
 
 
@@ -223,7 +257,7 @@ void read_src2(APEX_CPU* cpu)
         stage->rs2_value = cpu->prf[phys_rs2].value;
         stage->rs2_valid = 1;
     }
-    printf("\nphys_rs2=%d\n",phys_rs2);
+    // printf("\nphys_rs2=%d\n",phys_rs2);
     // else
     // {
     //   printf("\n#####\n");
@@ -251,7 +285,7 @@ void record_prf(APEX_CPU* cpu, enum STAGES FU_type)
     int result = cpu->stage[FU_type].buffer;
     cpu->prf[phys_reg].value = result;
     cpu->prf[phys_reg].valid = 1;
-    printf("%d\t%d!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!recoord prf!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cpu->prf[phys_reg].value, phys_reg);
+    // printf("%d\t%d!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!recoord prf!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cpu->prf[phys_reg].value, phys_reg);
 }
 
 

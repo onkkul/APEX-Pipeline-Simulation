@@ -192,7 +192,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
     }
 
     cpu->code_memory_size = cycles;
-    cpu->mul_cycle = 1;
+    // cpu->mul_cycle = 1;
     cpu->mem_cycle = 1;
     cpu->last_branch_id = -1;
     cpu->last_arith_phys_rd = -1;
@@ -355,11 +355,19 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
     {
         if (strcmp(name, "Execute_Mul") == 0)
         {
-            printf("%-15s: ", name);
-            printf("(cycle-%d) pc(%d) ", cpu->mul_cycle, stage->pc);
+            printf("%-15s: pc(%d) ", name, stage->pc);
             print_instruction(0, stage);
         }
-
+        if (strcmp(name, "Execute_Mul2") == 0)
+        {
+            printf("%-15s: pc(%d) ", name, stage->pc);
+            print_instruction(0, stage);
+        }
+        if (strcmp(name, "Execute_Mul3") == 0)
+        {
+            printf("%-15s: pc(%d) ", name, stage->pc);
+            print_instruction(0, stage);
+        }
         if (strcmp(name, "Memory") == 0)
         {
             printf("%-15s: ", name);
@@ -369,6 +377,12 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
 
         if (strcmp(name, "Execute_Int") == 0)
         {
+            printf("%-15s: pc(%d) ", name, stage->pc);
+            print_instruction(0, stage);
+        }
+        if (strcmp(name, "Execute_Int2") == 0)
+        {
+
             printf("%-15s: pc(%d) ", name, stage->pc);
             print_instruction(0, stage);
         }
@@ -505,6 +519,7 @@ int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq,
 
     if (src1)
     {
+        printf("\ncalling read_src1 \n");
         rename_src1(cpu);
         read_src1(cpu);
     }
@@ -1026,215 +1041,434 @@ int decode(APEX_CPU* cpu)
  *  Note : You are free to edit this function according to your
  * 				 implementation
  */
-int execute_int(APEX_CPU* cpu)
-{
-    CPU_Stage* stage = &cpu->stage[Int_FU];
-    if (!stage->busy && !stage->stalled)
-    {
+ int execute_int(APEX_CPU* cpu)
+ {
+     CPU_Stage* stage = &cpu->stage[Int_FU];
 
-        if (strcmp(stage->opcode, "MOVC") == 0)
-        {
-          stage->buffer = stage->imm + 0;
-          cpu->prf[stage->phys_rd].value = stage->buffer;
-          cpu->prf[stage->phys_rd].valid = 1;
-        }
+     if (!stage->busy && !stage->stalled)
+     {
 
-        if (strcmp(stage->opcode, "ADD") == 0)
-        {
-          printf("\nstage->rs1_value=%d\n",stage->rs1_value);
-          printf("\nstage->rs2_value=%d\n",stage->rs2_value);
+         if (strcmp(stage->opcode, "MOVC") == 0)
+         {
+           stage->buffer = stage->imm + 0;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-          stage->buffer = stage->rs1_value + stage->rs2_value;
-          printf("%d------------------------*******************************\n",stage->buffer);
-          cpu->prf[stage->phys_rd].value = stage->buffer;
-          cpu->prf[stage->phys_rd].valid = 1;
-          printf("%d\t%d------------------------*******************************\n",cpu->prf[stage->phys_rd].value, stage->phys_rd);
+         if (strcmp(stage->opcode, "ADD") == 0)
+         {
+           printf("\nstage->rs1_value=%d\n",stage->rs1_value);
+           printf("\nstage->rs2_value=%d\n",stage->rs2_value);
 
-          printf("\nstage->buffer=%d\n",stage->buffer);
-        }
+           stage->buffer = stage->rs1_value + stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-        if (strcmp(stage->opcode, "SUB") == 0)
-        {
-          stage->buffer = stage->rs1_value - stage->rs2_value;
-        }
+         if (strcmp(stage->opcode, "SUB") == 0)
+         {
+           stage->buffer = stage->rs1_value - stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-        if (strcmp(stage->opcode, "AND") == 0)
-        {
-          stage->buffer = stage->rs1_value & stage->rs2_value;
-        }
+         if (strcmp(stage->opcode, "AND") == 0)
+         {
+           stage->buffer = stage->rs1_value & stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-        if (strcmp(stage->opcode, "OR") == 0)
-        {
-          stage->buffer = stage->rs1_value | stage->rs2_value;
-        }
+         if (strcmp(stage->opcode, "OR") == 0)
+         {
+           stage->buffer = stage->rs1_value | stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-        if (strcmp(stage->opcode, "EX-OR") == 0)
-        {
-          stage->buffer = stage->rs1_value ^ stage->rs2_value;
-        }
+         if (strcmp(stage->opcode, "EX-OR") == 0)
+         {
+           stage->buffer = stage->rs1_value ^ stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-        if (strcmp(stage->opcode, "ADDL") == 0)
-        {
-          stage->buffer = stage->rs1_value + stage->imm;
-        }
+         if (strcmp(stage->opcode, "ADDL") == 0)
+         {
+           stage->buffer = stage->rs1_value + stage->imm;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-        if (strcmp(stage->opcode, "SUBL") == 0)
-        {
-          stage->buffer = stage->rs1_value - stage->imm;
-        }
+         if (strcmp(stage->opcode, "SUBL") == 0)
+         {
+           stage->buffer = stage->rs1_value - stage->imm;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
 
-        if (strcmp(stage->opcode, "BZ") == 0)
-        {
-            int branch_id = stage->branch_id;
-            int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
-            if (cpu->prf[phys_src].value == 0)
-            {
-                stage->target_address = stage->pc + stage->imm;
-                flow_control(cpu);
-            }
-        }
+         if (strcmp(stage->opcode, "BZ") == 0)
+         {
+             int branch_id = stage->branch_id;
+             int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
+             if (cpu->prf[phys_src].value == 0)
+             {
+                 stage->target_address = stage->pc + stage->imm;
+                 flow_control(cpu);
+             }
+         }
 
-        if (strcmp(stage->opcode, "BNZ") == 0)
-        {
-            int branch_id = stage->branch_id;
-            int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
-            if (cpu->prf[phys_src].value != 0)
-            {
-                stage->target_address = stage->pc + stage->imm;
-                flow_control(cpu);
-            }
-        }
+         if (strcmp(stage->opcode, "BNZ") == 0)
+         {
+             int branch_id = stage->branch_id;
+             int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
+             if (cpu->prf[phys_src].value != 0)
+             {
+                 stage->target_address = stage->pc + stage->imm;
+                 flow_control(cpu);
+             }
+         }
 
-        if (strcmp(stage->opcode, "JUMP") == 0)
-        {
-            stage->target_address = stage->rs1_value + stage->imm;
-            flow_control(cpu);
-        }
+         if (strcmp(stage->opcode, "JUMP") == 0)
+         {
+             stage->target_address = stage->rs1_value + stage->imm;
+             flow_control(cpu);
+         }
 
-        if (strcmp(stage->opcode, "JAL") == 0)
-        {
-            stage->target_address = stage->rs1_value + stage->imm;
-            stage->buffer = stage->pc + 4;
-            printf("*** stage->target_address = %d\n", stage->target_address);
-            printf("*** stage->buffer = %d\n", stage->buffer);
-            flow_control(cpu);
-        }
+         if (strcmp(stage->opcode, "JAL") == 0)
+         {
+             stage->target_address = stage->rs1_value + stage->imm;
+             stage->buffer = stage->pc + 4;
+             flow_control(cpu);
+         }
 
-        if (strcmp(stage->opcode, "STORE") == 0)
-        {
-            stage->buffer = stage->rs2_value + stage->imm;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
-        }
+         if (strcmp(stage->opcode, "STORE") == 0)
+         {
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
 
-        if (strcmp(stage->opcode, "STR") == 0)
-        {
-            stage->buffer = stage->rs2_value + stage->rs3_value;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
-        }
+         if (strcmp(stage->opcode, "STR") == 0)
+         {
+             stage->buffer = stage->rs2_value + stage->rs3_value;
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
 
-        if (strcmp(stage->opcode, "LOAD") == 0)
-        {
-            stage->buffer = stage->rs1_value + stage->imm;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
-        }
+         if (strcmp(stage->opcode, "LOAD") == 0)
+         {
+             stage->buffer = stage->rs1_value + stage->imm;
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
 
-        if (strcmp(stage->opcode, "LDR") == 0)
-        {
-            stage->buffer = stage->rs1_value + stage->rs2_value;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
-        }
+         if (strcmp(stage->opcode, "LDR") == 0)
+         {
+             stage->buffer = stage->rs1_value + stage->rs2_value;
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
 
-        if (ENABLE_DEBUG_MESSAGES)
-        {
-            display_stage_content("Execute_Int", cpu, Int_FU);
-        }
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Int", cpu, Int_FU);
+         }
 
-        // Do not broadcast of those instructions that do not have physical destination address - BNZ, BZ, STORE
-        if (strcmp(stage->opcode, "") != 0 && stage->phys_rd != -1 && (strcmp(stage->opcode, "LOAD") != 0 || strcmp(stage->opcode, "LDR") != 0))
-        {
-            // cpu->prf[stage->phys_rd].value   = stage->buffer;
-            result_broadcast(cpu, Int_FU);
-        }
+         // Do not broadcast of those instructions that do not have physical destination address - BNZ, BZ, STORE
+         if (strcmp(stage->opcode, "") != 0 && stage->phys_rd != -1 && (strcmp(stage->opcode, "LOAD") != 0 || strcmp(stage->opcode, "LDR") != 0))
+         {
+             // cpu->prf[stage->phys_rd].value   = stage->buffer;
+             result_broadcast(cpu, Int_FU);
+         }
 
-        // Update for those instructions that are not in LSQ
-        if (strcmp(stage->opcode, "") != 0 && stage->LSQ_index == -1)
-        {
-            printf("\nIN modify_rob_entry\n");
-            modify_rob_entry(cpu, Int_FU);
-        }
-        stage_clear(cpu, Int_FU);
-    }
+         if (strcmp(stage->opcode, "") != 0 && stage->LSQ_index == -1)
+         {
+             // printf("\nIN modify_rob_entry\n");
+             // printf("\n FU_type=%d\n",Int_FU);
+             modify_rob_entry(cpu, Int_FU);
+         }
 
-    else
-    {
-        if (ENABLE_DEBUG_MESSAGES)
-        {
-            display_stage_content("Execute_Int", cpu, Int_FU);
-        }
-    }
-    return 0;
-}
+         cpu->stage[Int_FU2] = cpu->stage[Int_FU];
+         stage_clear(cpu, Int_FU);
+     }
 
+     else
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Int", cpu, Int_FU);
+         }
+     }
+
+     return 0;
+ }
+
+ int execute_int2(APEX_CPU* cpu)
+ {
+    // printf("\ncpu->stage[Int_FU2].opcode=%s\n",cpu->stage[Int_FU2].opcode);
+     CPU_Stage* stage = &cpu->stage[Int_FU2];
+     if (!stage->busy && !stage->stalled)
+     {
+
+         if (strcmp(stage->opcode, "MOVC") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "ADD") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "SUB") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "AND") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "OR") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "EX-OR") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "ADDL") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "SUBL") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "BZ") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "BNZ") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "JUMP") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "JAL") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "STORE") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "STR") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "LOAD") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "LDR") == 0)
+         {
+
+         }
+
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+           // printf("\n888888\n");
+             display_stage_content("Execute_Int2", cpu, Int_FU2);
+         }
+         // Update for those instructions that are not in LSQ
+         if (strcmp(stage->opcode, "") != 0 && stage->LSQ_index == -1)
+         {
+             modify_rob_entry(cpu, Int_FU2);
+         }
+
+         stage_clear(cpu, Int_FU2);
+     }
+
+     else
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Int2", cpu, Int_FU2);
+         }
+     }
+     return 0;
+ }
 
 /*  Execute Stage for MUL instruction
  *
  *  Note : You are free to edit this function according to your
  * 				 implementation
  */
-int execute_mul(APEX_CPU* cpu)
-{
-    CPU_Stage* stage = &cpu->stage[Mul_FU];
-    if (!stage->busy && !stage->stalled)
-    {
+ int execute_mul(APEX_CPU* cpu)
+ {
+     CPU_Stage* stage = &cpu->stage[Mul_FU];
+     if (!stage->busy && !stage->stalled)
+     {
+
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul", cpu, Mul_FU);
+
+         }
+         if (strcmp(stage->opcode, "MUL") == 0)
+         {
+             stage->buffer = stage->rs1_value * stage->rs2_value;
+             stage->stalled = 1;
+             // cpu->mul_cycle++;
+
+             cpu->prf[stage->phys_rd].value = stage->buffer;
+             cpu->prf[stage->phys_rd].valid = 1;
+         }
+         cpu->stage[Mul_FU2] = cpu->stage[Mul_FU];
+         stage_clear(cpu, Mul_FU);
+
+     }
+     else
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul", cpu, Mul_FU);
+         }
+         // printf("\nBEFORE stage_clear-222\n");
+         // if (strcmp(stage->opcode, "MUL") == 0)
+         // {
+         //     stage->stalled = 0;
+         //     result_broadcast(cpu, Mul_FU);
+         //     modify_rob_entry(cpu, Mul_FU);
+         //     // cpu->mul_cycle = 1;
+         //     cpu->stage[Mul_FU2] = cpu->stage[Mul_FU];
+         //     printf("\nBEFORE stage_clear-222\n");
+         //     stage_clear(cpu, Mul_FU);
+         // }
+     }
+     return 0;
+ }
+
+ int execute_mul2(APEX_CPU* cpu)
+ {
+    // printf("\nSTART:execute_mul2\n");
+     CPU_Stage* stage = &cpu->stage[Mul_FU2];
+
+
+     if (!stage->busy && !stage->stalled)
+     {
+
+       // printf("\nexecute_mul2---!stage->busy && !stage->stalled\n");
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul2", cpu, Mul_FU2);
+         }
+
+         if (strcmp(stage->opcode, "MUL") == 0)
+         {
+
+         }
+         cpu->stage[Mul_FU3] = cpu->stage[Mul_FU2];
+         // printf("\nsent to mul fu3\n");
+         stage_clear(cpu, Mul_FU2);
+         // printf("\nstage_clear:Mul_FU2\n");
+     }
+     else
+     {
+        // printf("\nexecute_mul2---STALLED/BUSY\n");
+
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+            // printf("\nexecute_mul2---STALLED/BUSY\n");
+            // printf("\ncpu->stage[Mul_FU2].opcode=%s\n",cpu->stage[Mul_FU2].opcode);
+             display_stage_content("Execute_Mul2", cpu, Mul_FU2);
+         }
+         cpu->stage[Mul_FU3] = cpu->stage[Mul_FU2];
+         stage_clear(cpu, Mul_FU2);
+
+         // printf("\nstage_clear:Mul_FU2\n");
+         // if (strcmp(stage->opcode, "MUL") == 0)
+         // {
+         //     stage->stalled = 0;
+         //
+         //     modify_rob_entry(cpu, Mul_FU2);
+         //
+         //     stage_clear(cpu, Mul_FU2);
+         //     // cpu->mul_cycle = 1;
+         // }
+     }
+     // cpu->stage[Mul_FU2] = cpu->stage[Mul_FU2];
+     // printf("\nsent to mul fu3\n");
+     // stage_clear(cpu, Mul_FU2);
+     // printf("\nstage_clear:Mul_FU2\n");
+     return 0;
+ }
+
+ int execute_mul3(APEX_CPU* cpu)
+ {
+
+     CPU_Stage* stage = &cpu->stage[Mul_FU3];
+
+
+     if (!stage->busy && !stage->stalled)
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul3", cpu, Mul_FU3);
+         }
+
+         if (strcmp(stage->opcode, "MUL") == 0)
+         {
+
+         }
+     }
+     else
+     {
+
         if (ENABLE_DEBUG_MESSAGES)
         {
-            display_stage_content("Execute_Mul", cpu, Mul_FU);
+
+            display_stage_content("Execute_Mul3", cpu, Mul_FU3);
         }
-
-        if (strcmp(stage->opcode, "MUL") == 0)
-        {
-            stage->buffer = stage->rs1_value * stage->rs2_value;
-            stage->stalled = 1;
-            cpu->mul_cycle++;
-        }
-
-    }
-
-    else
-    {
-        if (ENABLE_DEBUG_MESSAGES)
-        {
-            display_stage_content("Execute_Mul", cpu, Mul_FU);
-        }
-
         if (strcmp(stage->opcode, "MUL") == 0)
         {
             stage->stalled = 0;
-            result_broadcast(cpu, Mul_FU);
-            modify_rob_entry(cpu, Mul_FU);
-            stage_clear(cpu, Mul_FU);
-            cpu->mul_cycle = 1;
-        }
-    }
-    return 0;
-}
 
+            modify_rob_entry(cpu, Mul_FU3);
+
+            stage_clear(cpu, Mul_FU3);
+            // cpu->mul_cycle = 1;
+        }
+     }
+     return 0;
+ }
 
 int memory(APEX_CPU* cpu)
 {
@@ -1318,7 +1552,10 @@ int APEX_cpu_run(APEX_CPU* cpu)
         }
 
         memory(cpu);
+        execute_int2(cpu);
         execute_int(cpu);
+        execute_mul3(cpu);
+        execute_mul2(cpu);
         execute_mul(cpu);
 
         if (ENABLE_DEBUG_MESSAGES)

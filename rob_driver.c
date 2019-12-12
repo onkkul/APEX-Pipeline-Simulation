@@ -79,7 +79,7 @@ int save_rob_entry(APEX_CPU* cpu)
         {
             int deallocate_index = cpu->rob.rob_entry[cpu->rob.head].arch_rd;
             int phys_reg_to_be_commit = cpu->rob.rob_entry[cpu->rob.head].phys_rd;
-            printf("%d\t%d!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ROB_Entry!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cpu->prf[phys_reg_to_be_commit].value, phys_reg_to_be_commit);
+            // printf("%d\t%d!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ROB_Entry!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cpu->prf[phys_reg_to_be_commit].value, phys_reg_to_be_commit);
             commit_reg(cpu, deallocate_index, phys_reg_to_be_commit); // commits in R-RAT and deallocates phys reg in prf
 
             if (strcmp(cpu->rob.rob_entry[cpu->rob.head].opcode, "JAL") == 0)
@@ -141,7 +141,20 @@ int save_rob_entry(APEX_CPU* cpu)
 int modify_rob_entry(APEX_CPU* cpu, enum STAGES FU_type)
 {
     int rob_entry_id = cpu->stage[FU_type].rob_entry_id;
-    cpu->rob.rob_entry[rob_entry_id].status = 1;
+
+    printf("\n FU_type=%d\n",FU_type);
+
+    if(FU_type==2 || FU_type==4 || FU_type==5)
+    {
+      cpu->rob.rob_entry[rob_entry_id].status = 0;
+    }
+    else if(FU_type==3 || FU_type==6)
+    {
+
+      cpu->rob.rob_entry[rob_entry_id].status = 1;//valid mul3(3,6)
+    }
+
+    // cpu->rob.rob_entry[rob_entry_id].status = 1;
     return 0;
 }
 
