@@ -174,7 +174,7 @@ void delete_str_from_rob(APEX_CPU* cpu)
 
 void display_rob_for_dbg(APEX_CPU* cpu)
 {
-    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Details of ROB State\n");
     for (int i = 0; i < ROB_ENTRIES_NUMBER; i++)
     {
@@ -191,34 +191,35 @@ void display_rob_for_dbg(APEX_CPU* cpu)
 
 void print_rob(APEX_CPU* cpu)
 {
-    printf("-------------------------------------- ROB --------------------------------------\n");
+    printf("Details of ROB (Reorder Buffer) State – -\n");
     for (int i = 0; i < ROB_ENTRIES_NUMBER; i++)
     {
         if (!cpu->rob.rob_entry[i].free || i == cpu->rob.tail)
         {
             printf("| Index = %d | ", i);
-            if (i == cpu->rob.tail)
-            {
-                printf("t |");
-            }
-            else
-            {
-                printf("  |");
-            }
-
-            if (i == cpu->rob.head)
-            {
-                printf(" h |");
-            }
-            else
-            {
-                printf("   |");
-            }
-
-            printf("\t");
+            // if (i == cpu->rob.tail)
+            // {
+            //     printf("t |");
+            // }
+            // else
+            // {
+            //     printf("  |");
+            // }
+            //
+            // if (i == cpu->rob.head)
+            // {
+            //     printf(" h |");
+            // }
+            // else
+            // {
+            //     printf("   |");
+            // }
+            //
+            // printf("\t");
             if (!cpu->rob.rob_entry[i].free)
             {
-                printf("pc(%d)  ", cpu->rob.rob_entry[i].pc); CPU_Stage* instruction_to_print = malloc(sizeof(*instruction_to_print));
+                // printf("pc(%d)  ", cpu->rob.rob_entry[i].pc);
+                CPU_Stage* instruction_to_print = malloc(sizeof(*instruction_to_print));
                 strcpy(instruction_to_print->opcode, cpu->rob.rob_entry[i].opcode);
 
                 instruction_to_print->arch_rs1 = cpu->rob.rob_entry[i].arch_rs1;
@@ -235,12 +236,12 @@ void print_rob(APEX_CPU* cpu)
 
                 instruction_to_print->imm = cpu->rob.rob_entry[i].imm;
                 print_instruction(0, instruction_to_print);
-                printf("\t|");
+                // printf("\t|");
             }
         printf("\n");
         }
     }
-    printf("---------------------------------------------------------------------------------\n\n");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
 }
 
 

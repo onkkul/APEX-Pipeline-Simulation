@@ -254,7 +254,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,#%d  [%s,U%d,U%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
+            printf("%s,R%d,R%d,#%d  [%s,P%d,P%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
         }
     }
 
@@ -267,7 +267,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,R%d  [%s,U%d,U%d,U%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->arch_rs2);
+            printf("%s,R%d,R%d,R%d  [%s,P%d,P%d,P%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->arch_rs2);
         }
     }
 
@@ -279,7 +279,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,#%d  [%s,U%d,#%d]", stage->opcode, stage->arch_rd, stage->imm,stage->opcode, stage->phys_rd, stage->imm);
+            printf("%s,R%d,#%d  [%s,P%d,#%d]", stage->opcode, stage->arch_rd, stage->imm,stage->opcode, stage->phys_rd, stage->imm);
         }
     }
 
@@ -292,7 +292,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,R%d  [%s,U%d,U%d,U%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->phys_rs2);
+            printf("%s,R%d,R%d,R%d  [%s,P%d,P%d,P%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->phys_rs2);
         }
     }
 
@@ -305,7 +305,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,#%d  [%s,U%d,U%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
+            printf("%s,R%d,R%d,#%d  [%s,P%d,P%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
         }
     }
 
@@ -334,7 +334,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,#%d  [%s,U%d,U%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
+            printf("%s,R%d,R%d,#%d  [%s,P%d,P%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
         }
     }
 
@@ -1537,13 +1537,14 @@ int APEX_cpu_run(APEX_CPU* cpu)
         /* All the instructions committed, so exit */
         if (cpu->simulation_completed)
         {
-            printf("\n=============================== SIMULATION FINISHED ============================\n");
+            //printf("\n=============================== SIMULATION FINISHED ============================\n");
+            printf("\n#--#--#--#--#--#--#--#--#--#--#-- SIMULATION FINISHED #--#--#--#--#--#--#--#--#--#--\n");
             break;
         }
 
         if (ENABLE_DEBUG_MESSAGES)
         {
-            printf("\n================================ CLOCK CYCLE %d ================================\n\n", cpu->clock);
+            printf("\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ CLOCK CYCLE %d ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n", cpu->clock);
         }
 
         if (save_rob_entry(cpu))

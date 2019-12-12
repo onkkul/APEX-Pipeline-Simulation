@@ -184,8 +184,8 @@ int distribute_result_to_iq(APEX_CPU* cpu, enum STAGES FU_type)
 
 void display_iq_for_debug(APEX_CPU* cpu)
 {
-    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Details of IQ State\n");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("Details of IQ (Issue Queue) State --\n");
     for (int i = 0; i < IQ_ENTRIES_NUMBER; i++)
     {
         if (!cpu->iq.iq_entry[i].free)
@@ -204,7 +204,7 @@ void display_iq_for_debug(APEX_CPU* cpu)
 void print_iq(APEX_CPU* cpu)
 {
     int iq_empty = 1;
-    printf("\n--------------------------------- Issue Queue -----------------------------------\n");
+    printf("\nDetails of IQ (Issue Queue) State –\n");
 
     for (int i = 0; i < IQ_ENTRIES_NUMBER; i++)
     {
@@ -238,7 +238,7 @@ void print_iq(APEX_CPU* cpu)
         printf("Empty\n");
     }
 
-    printf("---------------------------------------------------------------------------------\n\n");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
 }
 
 
