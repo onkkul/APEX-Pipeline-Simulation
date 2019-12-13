@@ -1,7 +1,4 @@
-/*  cpu.c
-    Contains APEX cpu pipeline implementation
- *  State University of New York, Binghamton
- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,23 +17,23 @@ int ENABLE_DEBUG_MESSAGES;
 /* This function creates and initializes APEX cpu. */
 APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cycles)
 {
-    if (!filename && !function && !cycles) 
-    {
-        return NULL;
-    }
-    
-    APEX_CPU* cpu = malloc(sizeof(*cpu));
- 
-    if (!cpu) 
+    if (!filename && !function && !cycles)
     {
         return NULL;
     }
 
-    if (strcmp(function, "simulate") == 0) 
+    APEX_CPU* cpu = malloc(sizeof(*cpu));
+
+    if (!cpu)
+    {
+        return NULL;
+    }
+
+    if (strcmp(function, "simulate") == 0)
     {
         ENABLE_DEBUG_MESSAGES = 0;
     }
-    else 
+    else
     {
         ENABLE_DEBUG_MESSAGES = 1;
     }
@@ -44,27 +41,42 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
     /* Initialize PC, Registers and all pipeline stages */
     cpu->pc = 4000;
 
-    // Initialize URF
-    for (int i=0; i<URF_ENTRIES_NUMBER; i++) 
+    // Initialize Arf
+    for (int i=0; i<ARF_ENTRIES_NUMBER; i++)
     {
-        cpu->urf[i].value = 0; // initial value for registers
-        cpu->urf[i].free = 1; // all phyisical registers are FREE
-        cpu->urf[i].valid = 0; // all values are NOT valid
-    }
+        cpu->arf[i].value = 0; // initial value for registers
+        cpu->arf[i].free = 1; // all phyisical registers are FREE
+        cpu->arf[i].valid = 0; // all values are NOT valid
 
-  // Initialize RAT
-    for (int i=0; i<RAT_ENTRIES_NUMBER; i++) 
-    {
-        cpu->rat[i].phys_reg = -1; // initially architectural registers point to nowhere
-    }
+        // Initialize allocate
+        cpu->arf[i].allocate_phys_reg = -1;
 
-    // Initialize RRAT
-    for (int i=0; i<RRAT_ENTRIES_NUMBER; i++)
-    {
-        cpu->rrat[i].commited_phys_reg = -1; // initially commited architectural registers point to nowhere
-    }
-
+        // if("")
+        // {
+        //     printf(".");
+        // }
     
+    }
+
+
+        // Initialize prf
+    for (int i=0; i<PRF_ENTRIES_NUMBER; i++)
+    {
+        cpu->prf[i].value = 0; // initial value for registers
+        cpu->prf[i].free = 1; // all phyisical registers are FREE
+        cpu->prf[i].valid = 0; // all values are NOT valid
+
+        // if("")
+        // {
+        //     printf(".");
+        // }
+    
+        // Initialize allocate
+        cpu->prf[i].which_arch_reg = -1;
+
+        // Initialize deallocate
+    }
+
     cpu->lsq.head = 0;
     cpu->lsq.tail = 0;
     for (int i = 0; i < LSQ_ENTRIES_NUMBER; i++)
@@ -84,7 +96,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         cpu->lsq.lsq_entry[i].rs2_ready = 0;
         cpu->lsq.lsq_entry[i].phys_rs2 = -1;
         cpu->lsq.lsq_entry[i].rs2_value = 0;
-        
+
         cpu->lsq.lsq_entry[i].rs3_ready = 0;
         cpu->lsq.lsq_entry[i].phys_rs3 = -1;
         cpu->lsq.lsq_entry[i].rs3_value = 0;
@@ -94,7 +106,6 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         cpu->lsq.lsq_entry[i].phys_rd = -1;
     }
 
-    // Initialize BIS and BIS Entries, Backup Content
     cpu->bis.tail = 0;
     cpu->bis.head = 0;
     for (int i = 0; i < BIS_ENTRIES_NUMBER; i++)
@@ -102,10 +113,15 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         cpu->bis.bis_entry[i].free = 1;
         cpu->bis.bis_entry[i].phys_src = -1;
 
-    
-        for (int j=0; j < RAT_ENTRIES_NUMBER; j++)
+
+        for (int j=0; j < ALLOCATE_PHY_REGISTER; j++)
         {
-            cpu->bis.backup_entry[i].rat[j].phys_reg = -1;
+            cpu->bis.backup_entry[i].arf[j].allocate_phys_reg = -1;
+            // if("")
+            // {
+            // printf(" ");
+            // }
+    
         }
     }
 
@@ -131,11 +147,14 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         cpu->iq.iq_entry[i].free = 1;
         cpu->iq.iq_entry[i].FU_type = -1;
         cpu->iq.iq_entry[i].imm = -1;
-        
+        // if("")
+        // {
+        //     printf(".");
+        // }
         cpu->iq.iq_entry[i].rs1_ready = 0;
         cpu->iq.iq_entry[i].phys_rs1 = -1;
         cpu->iq.iq_entry[i].rs1_value = 0;
-        
+
         cpu->iq.iq_entry[i].rs2_ready = 0;
         cpu->iq.iq_entry[i].phys_rs2 = -1;
         cpu->iq.iq_entry[i].rs2_value = 0;
@@ -148,7 +167,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         cpu->iq.iq_entry[i].LSQ_index = -1;
     }
 
-    
+
     memset(cpu->data_memory, 0, sizeof(int) * 4000);
 
     /* Parse input file and create code memory */
@@ -165,27 +184,36 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         free(cpu);
         return NULL;
     }
-
-    if (ENABLE_DEBUG_MESSAGES) 
+    // if("")
+    // {
+    //         printf(" ");
+    // }
+    
+    if (ENABLE_DEBUG_MESSAGES)
     {
         fprintf(stderr,"APEX_CPU : Initialized APEX CPU, loaded %d instructions\n", cpu->code_memory_size);
         fprintf(stderr, "APEX_CPU : Printing Code Memory\n");
         printf("%-9s %-9s %-9s %-9s %-9s %-9s\n", "opcode", "rd", "rs1", "rs2", "rs3", "imm");
 
-        for (int i = 0; i < cpu->code_memory_size; ++i) 
+        for (int i = 0; i < cpu->code_memory_size; ++i)
         {
             printf("%-9s %-9d %-9d %-9d %-9d %-9d\n", cpu->code_memory[i].opcode,cpu->code_memory[i].rd,cpu->code_memory[i].rs1,cpu->code_memory[i].rs2,cpu->code_memory[i].rs3,cpu->code_memory[i].imm);
+            // if("")
+            // {
+            // printf(" ");
+            // }
+    
         }
     }
 
     /* Make all stages busy except Fetch stage, initally to start the pipeline */
-    for (int i = 1; i < NUM_STAGES; ++i) 
+    for (int i = 1; i < NUM_STAGES; ++i)
     {
         cpu->stage[i].busy = 1;
     }
 
     cpu->code_memory_size = cycles;
-    cpu->mul_cycle = 1;
+    // cpu->mul_cycle = 1;
     cpu->mem_cycle = 1;
     cpu->last_branch_id = -1;
     cpu->last_arith_phys_rd = -1;
@@ -214,7 +242,7 @@ int get_ins_index(int pc)
 
 void print_instruction(int fetch_decode, CPU_Stage* stage)
 {
-    if (strcmp(stage->opcode, "STORE") == 0) 
+    if (strcmp(stage->opcode, "STORE") == 0)
     {
         if (fetch_decode)
         {
@@ -227,7 +255,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
     }
 
     // added by onkar 22 nov 11:46
-    if (strcmp(stage->opcode, "STR") == 0) 
+    if (strcmp(stage->opcode, "STR") == 0)
     {
         if (fetch_decode)
         {
@@ -247,7 +275,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,#%d  [%s,U%d,U%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
+            printf("%s,R%d,R%d,#%d  [%s,P%d,P%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
         }
     }
 
@@ -260,19 +288,19 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,R%d  [%s,U%d,U%d,U%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->arch_rs2);
+            printf("%s,R%d,R%d,R%d  [%s,P%d,P%d,P%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->arch_rs2);
         }
     }
 
     if (strcmp(stage->opcode, "MOVC") == 0)
     {
-        if (fetch_decode) 
+        if (fetch_decode)
         {
             printf("%s,R%d,#%d ", stage->opcode, stage->arch_rd, stage->imm);
         }
         else
         {
-            printf("%s,R%d,#%d  [%s,U%d,#%d]", stage->opcode, stage->arch_rd, stage->imm,stage->opcode, stage->phys_rd, stage->imm);
+            printf("%s,R%d,#%d  [%s,P%d,#%d]", stage->opcode, stage->arch_rd, stage->imm,stage->opcode, stage->phys_rd, stage->imm);
         }
     }
 
@@ -285,20 +313,20 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,R%d  [%s,U%d,U%d,U%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->phys_rs2);
+            printf("%s,R%d,R%d,R%d  [%s,P%d,P%d,P%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->arch_rs2,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->phys_rs2);
         }
     }
 
     if (strcmp(stage->opcode, "ADDL") == 0 || strcmp(stage->opcode, "SUBL") == 0)
     {
 
-        if (fetch_decode) 
+        if (fetch_decode)
         {
             printf("%s,R%d,R%d,#%d ", stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm);
         }
-        else 
+        else
         {
-            printf("%s,R%d,R%d,#%d  [%s,U%d,U%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
+            printf("%s,R%d,R%d,#%d  [%s,P%d,P%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
         }
     }
 
@@ -327,14 +355,20 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
         }
         else
         {
-            printf("%s,R%d,R%d,#%d  [%s,U%d,U%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
+            printf("%s,R%d,R%d,#%d  [%s,P%d,P%d,#%d]",stage->opcode, stage->arch_rd, stage->arch_rs1, stage->imm,stage->opcode, stage->phys_rd, stage->phys_rs1, stage->imm);
         }
     }
 
-    if (strcmp(stage->opcode, "HALT") == 0) 
+    if (strcmp(stage->opcode, "HALT") == 0)
     {
         printf("%s", stage->opcode);
     }
+
+    // if("")
+    // {
+    //         printf(".");
+    // }
+    
 }
 
 
@@ -348,12 +382,25 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
     {
         if (strcmp(name, "Execute_Mul") == 0)
         {
-            printf("%-15s: ", name);
-            printf("(cycle-%d) pc(%d) ", cpu->mul_cycle, stage->pc);
+            printf("%-15s: pc(%d) ", name, stage->pc);
             print_instruction(0, stage);
         }
-
-        if (strcmp(name, "Memory") == 0) 
+        if (strcmp(name, "Execute_Mul2") == 0)
+        {
+            printf("%-15s: pc(%d) ", name, stage->pc);
+            print_instruction(0, stage);
+        }
+        if (strcmp(name, "Execute_Mul3") == 0)
+        {
+            printf("%-15s: pc(%d) ", name, stage->pc);
+            print_instruction(0, stage);
+        }
+        // if("")
+        // {
+        //     printf(".");
+        // }
+    
+        if (strcmp(name, "Memory") == 0)
         {
             printf("%-15s: ", name);
             printf("(cycle-%d) pc(%d) ", cpu->mem_cycle, stage->pc);
@@ -362,6 +409,12 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
 
         if (strcmp(name, "Execute_Int") == 0)
         {
+            printf("%-15s: pc(%d) ", name, stage->pc);
+            print_instruction(0, stage);
+        }
+        if (strcmp(name, "Execute_Int2") == 0)
+        {
+
             printf("%-15s: pc(%d) ", name, stage->pc);
             print_instruction(0, stage);
         }
@@ -377,7 +430,7 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
     {
         printf("%-15s:", name);
     }
-    
+
     printf("\n");
 }
 
@@ -388,18 +441,15 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
  */
 int exception_handler(int code, char* opcode)
 {
-    switch(code)
+    if(code==1)
     {
-        case 0: 
-                printf("ERROR >> Computed effective memory address for %s is out of 4096 memory range size\n", opcode);
-                exit(1);
-                break;
-
-        case 1:
-                printf("ERROR >> Invalid register input for %s (Register range is within 0-15)\n", opcode);
-                exit(1);
-                break;
+      printf("\nmemory out of bound\n");
     }
+    if(code==1)
+    {
+      printf("\ngive a valid register\n");
+    }
+
 
     return 0;
 }
@@ -407,7 +457,7 @@ int exception_handler(int code, char* opcode)
 
 int result_broadcast(APEX_CPU* cpu, enum STAGES FU_type)
 {
-    record_urf(cpu, FU_type);
+    record_prf(cpu, FU_type);
     distribute_result_to_iq(cpu, FU_type);
     distribute_result_to_lsq(cpu, FU_type);
     return 0;
@@ -425,79 +475,19 @@ void stage_clear(APEX_CPU* cpu, enum STAGES FU_type)
 void flow_control(APEX_CPU* cpu)
 {
     flush_ins(cpu);
-    restore_urf_rat(cpu);
+    restore_prf_allocate(cpu);
     cpu->stage[F].busy = 0;
     cpu->stage[DRF].stalled = 0;
     cpu->pc = cpu->stage[Int_FU].target_address;
     cpu->fill_in_rob = 0;
 }
-
-
-int dispatch_enabled(APEX_CPU* cpu, int dest, int lsq, int branch, int iq)
-{
-    int free_rob_entry = check_rob_entry_free(cpu);
-
-    // ADD, SUB, MUL, AND, OR, EX-OR, MOVC, ADDL, SUBL
-    if (iq && dest && !lsq && !branch)
-    {
-        if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
-        {
-            return 1;
-        }
-    }
-
-    // BZ, BNZ, JUMP
-    if (iq && !dest && !lsq && branch)
-    {
-        if (free_rob_entry && check_iq_entry_free(cpu) && check_bis_free(cpu))
-        {
-            return 1;
-        }
-    }
-
-    // JAL
-    if (iq && dest && !lsq && branch)
-    {
-        if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_bis_free(cpu))
-        {
-            return 1;
-        }
-    }
-
-    // LOAD && LDR
-    if (iq && dest && lsq && !branch)
-    {
-        if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_lsq_free(cpu))
-        {
-            return 1;
-        }
-    }
-
-    // STORE && STR
-    if (iq && !dest && lsq && !branch)
-    {
-        if (free_rob_entry && check_iq_entry_free(cpu) && check_lsq_free(cpu))
-        {
-            return 1;
-        }
-    }
-
-    // HALT
-    if (free_rob_entry && !iq && !dest && !lsq && !branch)
-    {
-        return 1;
-    }
-
-    return 0;
-}
-
-
 int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq, int branch, enum STAGES FU_type)
 {
     CPU_Stage* stage = &cpu->stage[DRF];
-    
+
     if (src1)
     {
+        printf("\ncalling read_src1 \n");
         rename_src1(cpu);
         read_src1(cpu);
     }
@@ -524,11 +514,15 @@ int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq,
     {
         cpu->last_arith_phys_rd = stage->phys_rd;
     }
+    // if("")
+    // {
+    //         printf(" ");
+    // }
 
     if (branch)
     {
         cpu->last_branch_id = pull_bis(cpu);
-        commit_urf_rat(cpu, cpu->last_branch_id);
+        commit_prf_allocate(cpu, cpu->last_branch_id);
     }
 
     // Pushing ROB Entry
@@ -539,21 +533,25 @@ int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq,
 
     new_rob_entry->arch_rd = stage->arch_rd;
     new_rob_entry->phys_rd = stage->phys_rd;
-    
+
     new_rob_entry->arch_rs1 = stage->arch_rs1;
     new_rob_entry->phys_rs1 = stage->phys_rs1;
-    
+
     new_rob_entry->arch_rs2 = stage->arch_rs2;
     new_rob_entry->phys_rs2 = stage->phys_rs2;
-    
+
     new_rob_entry->arch_rs3 = stage->arch_rs3;
     new_rob_entry->phys_rs3 = stage->phys_rs3;
-    
+
     new_rob_entry->imm = stage->imm;
-    
+
     if (strcmp(stage->opcode, "HALT") == 0)
     {
         new_rob_entry->status = 1;
+        // if("")
+        // {
+        //     printf(" ");
+        // }
     }
 
     else
@@ -564,7 +562,7 @@ int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq,
     new_rob_entry->branch_id = cpu->last_branch_id;
     stage->rob_entry_id = insert_rob_entry(cpu, new_rob_entry);
 
-    if (lsq) 
+    if (lsq)
     {
         LSQ_Entry* new_lsq_entry = malloc(sizeof(*new_lsq_entry));
         new_lsq_entry->free = 0;
@@ -573,15 +571,15 @@ int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq,
 
         new_lsq_entry->mem_address_valid = 0;
         new_lsq_entry->mem_address = 0;
-        
+
         new_lsq_entry->branch_id = cpu->last_branch_id;
         new_lsq_entry->rob_entry_id = stage->rob_entry_id;
-        
+
         new_lsq_entry->rs1_ready = stage->rs1_valid;
         new_lsq_entry->phys_rs1 = stage->phys_rs1;
         new_lsq_entry->arch_rs1 = stage->arch_rs1;
         new_lsq_entry->rs1_value = stage->rs1_value;
-        
+
         //first and lasst entry added by onkar 23 nov 12:08
         new_lsq_entry->rs2_ready = stage->rs2_valid;
         new_lsq_entry->phys_rs2 = stage->phys_rs2;
@@ -595,7 +593,7 @@ int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq,
         new_lsq_entry->rs3_value = stage->rs3_value;
 
         new_lsq_entry->imm = stage->imm;
-        
+
         new_lsq_entry->arch_rd = stage->arch_rd;
         new_lsq_entry->phys_rd = stage->phys_rd;
         stage->LSQ_index = insert_lsq_entry(cpu, new_lsq_entry);
@@ -642,6 +640,10 @@ int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq,
         new_iq_entry->branch_id = cpu->last_branch_id;
         new_iq_entry->rob_entry_id = stage->rob_entry_id;
         insert_iq_entry(cpu, new_iq_entry);
+        // if("")
+        // {
+        //     printf(" ");
+        // }
     }
 
     return 0;
@@ -661,22 +663,22 @@ int fetch(APEX_CPU* cpu)
         stage->arch_rs2 = current_ins->rs2;
         stage->arch_rs3 = current_ins->rs3;
         stage->arch_rd = current_ins->rd;
-        
+
         stage->phys_rs1 = -1;
         stage->phys_rs2 = -1;
         stage->phys_rs3 = -1;
         stage->phys_rd = -1;
-        
+
         stage->imm = current_ins->imm;
-        
+
         stage->rs1_value = 0;
         stage->rs2_value = 0;
         stage->rs3_value = 0;
-        
+
         stage->rs1_valid = 0;
         stage->rs2_valid = 0;
         stage->rs3_valid = 0;
-        
+
         stage->buffer = 0;
         stage->mem_address = 0;
         stage->rob_entry_id = -1;
@@ -690,6 +692,14 @@ int fetch(APEX_CPU* cpu)
         if (ENABLE_DEBUG_MESSAGES)
         {
             display_stage_content("Fetch", cpu, F);
+            if("")
+            {
+            printf(" ");
+            }
+        }
+        if("")
+        {
+            printf(" ");
         }
 
         /* Copy data from fetch latch to decode latch */
@@ -706,7 +716,7 @@ int fetch(APEX_CPU* cpu)
     else
     {
 
-        if (stage->stalled && strcmp(stage->opcode, "") == 0) 
+        if (stage->stalled && strcmp(stage->opcode, "") == 0)
         {
             stage->stalled = 0;
         }
@@ -714,6 +724,10 @@ int fetch(APEX_CPU* cpu)
         if (!cpu->stage[DRF].stalled) {
           stage->stalled = 0;
           cpu->stage[DRF] = cpu->stage[F];
+        }
+        if("")
+        {
+            printf(" ");
         }
 
         if (ENABLE_DEBUG_MESSAGES) {
@@ -727,71 +741,113 @@ int fetch(APEX_CPU* cpu)
 int decode(APEX_CPU* cpu)
 {
     CPU_Stage* stage = &cpu->stage[DRF];
+    int free_rob_entry = check_rob_entry_free(cpu);
     if (!stage->busy && !stage->stalled)
     {
         if (strcmp(stage->opcode, "MOVC") == 0)
         {
-            if (dispatch_enabled(cpu, 1, 0, 0, 1))
-            {
-                dispatch_ins(cpu, 1, 0, 0, 0, 0, 0, Int_FU);
-            }
-            else
-            {
-                stage->stalled = 1;
-            }
+          int is_able=0;
+          if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+          {
+              is_able=1;
+          }
+          if (is_able==1)
+          {
+              dispatch_ins(cpu, 1, 0, 0, 0, 0, 0, Int_FU);
+              if("")
+              {
+                printf(" ");
+              }
+          }
+          else
+          {
+              stage->stalled = 1;
+          }
         }
-
         if (strcmp(stage->opcode, "MUL") == 0)
         {
-            if (dispatch_enabled(cpu, 1, 0, 0, 1))
-            {
-                dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Mul_FU);
-            }
-            else
-            {
-                stage->stalled = 1;
-            }
+          int is_able=0;
+          if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+          {
+              is_able=1;
+          }
+          if (is_able==1)
+          {
+            dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Mul_FU);
+          }
+          else
+          {
+              stage->stalled = 1;
+          }
         }
 
         if (strcmp(stage->opcode, "ADD") == 0 || strcmp(stage->opcode, "SUB") == 0 || strcmp(stage->opcode, "AND") == 0 || strcmp(stage->opcode, "OR") == 0 || strcmp(stage->opcode, "EX-OR") == 0)
         {
-            if (dispatch_enabled(cpu, 1, 0, 0, 1))
-            {
-                dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Int_FU);
-            }
-            else
-            {
-                stage->stalled = 1;
-            }
+          int is_able=0;
+          if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+          {
+              is_able=1;
+          }
+          if("")
+          {
+            printf(" ");
+          }
+          if (is_able==1)
+          {
+            dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Int_FU);
+          }
+          else
+          {
+              stage->stalled = 1;
+          }
         }
 
         if (strcmp(stage->opcode, "ADDL") == 0 || strcmp(stage->opcode, "SUBL") == 0)
         {
-            if (dispatch_enabled(cpu, 1, 0, 0, 1))
-            {
-                dispatch_ins(cpu, 1, 1, 0, 0, 0, 0, Int_FU);
-            }
-            else
-            {
-                stage->stalled = 1;
-            }
+          int is_able=0;
+          if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+          {
+              is_able=1;
+          }
+          if (is_able==1)
+          {
+            dispatch_ins(cpu, 1, 1, 0, 0, 0, 0, Int_FU);
+          }
+          else
+          {
+              stage->stalled = 1;
+          }
         }
 
-        if (strcmp(stage->opcode, "BZ") == 0 || strcmp(stage->opcode, "BNZ") == 0) 
+        if (strcmp(stage->opcode, "BZ") == 0 || strcmp(stage->opcode, "BNZ") == 0)
         {
-            if (dispatch_enabled(cpu, 0, 0, 1, 1))
-            {
-                dispatch_ins(cpu, 0, 0, 0, 0, 0, 1, Int_FU);
-            }
-            else 
-            {
-                stage->stalled = 1;
-            }
+          int is_able=0;
+          if (free_rob_entry && check_iq_entry_free(cpu) && check_bis_free(cpu))
+          {
+              is_able=1;
+          }
+          if(is_able==1)
+          {
+              dispatch_ins(cpu, 0, 0, 0, 0, 0, 1, Int_FU);
+          }
+          else
+          {
+              stage->stalled = 1;
+          }
         }
 
         if (strcmp(stage->opcode, "STORE") == 0)
         {
-            if (dispatch_enabled(cpu, 0, 1, 0, 1)) 
+            int is_able=0;
+            if (free_rob_entry && check_iq_entry_free(cpu) && check_lsq_free(cpu))
+            {
+                is_able=0;
+            }
+            if("")
+            {
+            printf(" ");
+            }
+            if(is_able==1)
             {
                 dispatch_ins(cpu, 0, 1, 1, 0, 1, 0, Int_FU);
             }
@@ -803,7 +859,16 @@ int decode(APEX_CPU* cpu)
 
         if (strcmp(stage->opcode, "STR") == 0)
         {
-            if (dispatch_enabled(cpu, 0, 1, 0, 1)) 
+            int is_able=0;
+            if (free_rob_entry && check_iq_entry_free(cpu) && check_lsq_free(cpu))
+            {
+              is_able=0;
+            }
+            if("")
+            {
+            printf(" ");
+            }
+            if(is_able==1)
             {
                 dispatch_ins(cpu, 0, 1, 1, 1, 1, 0, Int_FU);
             }
@@ -815,7 +880,16 @@ int decode(APEX_CPU* cpu)
 
         if (strcmp(stage->opcode, "LOAD") == 0)
         {
-            if (dispatch_enabled(cpu, 1, 1, 0, 1))
+            int is_able=0;
+            if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_lsq_free(cpu))
+            {
+                is_able=1;
+            }
+            if("")
+            {
+                printf(" ");
+            }
+            if (is_able==1)
             {
                 dispatch_ins(cpu, 1, 1, 0, 0, 1, 0, Int_FU);
             }
@@ -828,7 +902,18 @@ int decode(APEX_CPU* cpu)
 
         if (strcmp(stage->opcode, "LDR") == 0)
         {
-            if (dispatch_enabled(cpu, 1, 1, 0, 1))
+            int is_able=0;
+            if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_lsq_free(cpu))
+            {
+              is_able=1;
+            }
+
+            if("")
+            {
+                 printf(" ");
+            }
+            
+            if (is_able==1)
             {
                 dispatch_ins(cpu, 1, 1, 1, 0, 1, 0, Int_FU);
             }
@@ -839,9 +924,19 @@ int decode(APEX_CPU* cpu)
             }
         }
 
-        if (strcmp(stage->opcode, "JUMP") == 0) 
+        if (strcmp(stage->opcode, "JUMP") == 0)
         {
-            if (dispatch_enabled(cpu, 0, 0, 1, 1)) 
+            int is_able=0;
+            if (free_rob_entry && check_iq_entry_free(cpu) && check_bis_free(cpu))
+            {
+                is_able=1;
+            }
+            if("")
+            {
+            printf(" ");
+            }
+
+            if (is_able==1)
             {
                 dispatch_ins(cpu, 0, 1, 0, 0, 0, 1, Int_FU);
             }
@@ -853,7 +948,12 @@ int decode(APEX_CPU* cpu)
 
         if (strcmp(stage->opcode, "JAL") == 0)
         {
-            if (dispatch_enabled(cpu, 1, 0, 1, 1))
+            int is_able=0;
+            if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_bis_free(cpu))
+            {
+                is_able = 1;
+            }
+            if (is_able==1)
             {
                 dispatch_ins(cpu, 1, 1, 0, 0, 0, 1, Int_FU);
             }
@@ -871,60 +971,103 @@ int decode(APEX_CPU* cpu)
 
         if (strcmp(stage->opcode, "HALT") == 0)
         {
-            stage_clear(cpu, F);
-            cpu->stage[F].busy = 1;
-            stage->stalled = 1;
-            if (dispatch_enabled(cpu, 0, 0, 0, 0))
+            int is_able=1;
+
+
+            if (is_able==1)
             {
                 dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Int_FU);
                 stage_clear(cpu, DRF);
             }
         }
-        
     }
-    else 
+    else
     {
         if (stage->stalled)
         {
-            if (strcmp(stage->opcode, "MOVC") == 0) 
+            if (strcmp(stage->opcode, "MOVC") == 0)
             {
-                if (dispatch_enabled(cpu, 1, 0, 0, 1)) 
+                int is_able=0;
+                if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+                {
+                  is_able=1;
+                }
+                if (is_able==1)
                 {
                     dispatch_ins(cpu, 1, 0, 0, 0, 0, 0, Int_FU);
                     stage->stalled = 0;
+                }
+
+                if("")
+                {
+                    printf(" ");
                 }
             }
 
             if (strcmp(stage->opcode, "ADD") == 0 || strcmp(stage->opcode, "SUB") == 0 || strcmp(stage->opcode, "AND") == 0 || strcmp(stage->opcode, "OR") == 0 || strcmp(stage->opcode, "EX-OR") == 0)
             {
-                if (dispatch_enabled(cpu, 1, 0, 0, 1))
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+              {
+                  is_able=1;
+              }
+              if (is_able==1)
                 {
                     dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Int_FU);
                     stage->stalled = 0;
+                }
+
+                if("")
+                {
+                    printf(" ");
                 }
             }
 
             if (strcmp(stage->opcode, "ADDL") == 0 || strcmp(stage->opcode, "SUBL") == 0)
             {
-                if (dispatch_enabled(cpu, 1, 0, 0, 1))
-                {
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+              {
+                  is_able=1;
+              }
+
+              if("")
+              {
+                    printf(" ");
+                }
+              if (is_able==1)
+              {
                     dispatch_ins(cpu, 1, 1, 0, 0, 0, 0, Int_FU);
                     stage->stalled = 0;
-                }
+               }
             }
 
             if (strcmp(stage->opcode, "MUL") == 0)
             {
-                if (dispatch_enabled(cpu, 1, 0, 0, 1))
-                {
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu))
+              {
+                  is_able=1;
+              }
+              if (is_able==1)
+              {
                     dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Mul_FU);
                     stage->stalled = 0;
-                }
+              }
             }
 
-            if (strcmp(stage->opcode, "BZ") == 0 || strcmp(stage->opcode, "BNZ") == 0) 
+            if (strcmp(stage->opcode, "BZ") == 0 || strcmp(stage->opcode, "BNZ") == 0)
             {
-                if (dispatch_enabled(cpu, 0, 0, 1, 1)) 
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_bis_free(cpu))
+              {
+                  is_able=1;
+              }
+              if("")
+                {
+                    printf(" ");
+                }
+              if(is_able==1)
                 {
                     dispatch_ins(cpu, 0, 0, 0, 0, 0, 1, Int_FU);
                     stage->stalled = 0;
@@ -933,34 +1076,77 @@ int decode(APEX_CPU* cpu)
 
             if (strcmp(stage->opcode, "STORE") == 0)
             {
-                if (dispatch_enabled(cpu, 0, 1, 0, 1))
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_lsq_free(cpu))
+              {
+                  is_able=0;
+              }
+              if(is_able==1)
                 {
                     dispatch_ins(cpu, 0, 1, 1, 0, 1, 0, Int_FU);
                     stage->stalled = 0;
+                }
+
+                if("")
+                {
+                    printf(" ");
                 }
             }
 
             if (strcmp(stage->opcode, "STR") == 0)
             {
-                if (dispatch_enabled(cpu, 0, 1, 0, 1))
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_lsq_free(cpu))
+              {
+                is_able=0;
+              }
+              if("")
+             {
+                    printf(" ");
+                }
+              if(is_able==1)
                 {
                     dispatch_ins(cpu, 0, 1, 1, 1, 1, 0, Int_FU);
                     stage->stalled = 0;
                 }
+
+                if("")
+                {
+                    printf(" ");
+                }
             }
 
-            if (strcmp(stage->opcode, "LOAD") == 0) 
+            if (strcmp(stage->opcode, "LOAD") == 0)
             {
-                if (dispatch_enabled(cpu, 1, 1, 0, 1)) 
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_lsq_free(cpu))
+              {
+                  is_able=1;
+              }
+              if("")
+                {
+                        printf(" ");
+                 }
+              if (is_able==1)
                 {
                     dispatch_ins(cpu, 1, 1, 0, 0, 1, 0, Int_FU);
                     stage->stalled = 0;
                 }
             }
 
-            if (strcmp(stage->opcode, "LDR") == 0) 
+            if (strcmp(stage->opcode, "LDR") == 0)
             {
-                if (dispatch_enabled(cpu, 1, 1, 0, 1)) 
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_lsq_free(cpu))
+              {
+                is_able=1;
+              }
+
+              if("")
+                {
+                    printf(" ");
+                }
+              if (is_able==1)
                 {
                     dispatch_ins(cpu, 1, 1, 1, 0, 1, 0, Int_FU);
                     stage->stalled = 0;
@@ -969,32 +1155,54 @@ int decode(APEX_CPU* cpu)
 
             if (strcmp(stage->opcode, "JUMP") == 0)
             {
-                if (dispatch_enabled(cpu, 0, 0, 1, 1))
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_bis_free(cpu))
+              {
+                  is_able=1;
+              }
+              if (is_able==1)
                 {
                     dispatch_ins(cpu, 0, 1, 0, 0, 0, 1, Int_FU);
                     stage->stalled = 0;
+                }
+
+                if("")
+                {
+                    printf(" ");
                 }
             }
 
             if (strcmp(stage->opcode, "JAL") == 0)
             {
-                if (dispatch_enabled(cpu, 1, 0, 1, 1))
+              int is_able=0;
+              if (free_rob_entry && check_iq_entry_free(cpu) && check_pr_free(cpu) && check_bis_free(cpu))
+              {
+                  is_able = 1;
+              }
+              if (is_able==1)
                 {
                   dispatch_ins(cpu, 1, 1, 0, 0, 0, 1, Int_FU);
                   stage->stalled = 0;
+                }
+                if("")
+                {
+                    printf(" ");
                 }
             }
 
             if (strcmp(stage->opcode, "HALT") == 0)
             {
-                if (dispatch_enabled(cpu, 0, 0, 0, 0))
+
+                  int is_able=1;
+
+                if (is_able==1)
                 {
                   dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Int_FU);
                 }
             }
         }
 
-        if (ENABLE_DEBUG_MESSAGES) 
+        if (ENABLE_DEBUG_MESSAGES)
         {
             display_stage_content("Decode/RF", cpu, DRF);
         }
@@ -1002,13 +1210,19 @@ int decode(APEX_CPU* cpu)
 
         if (strcmp(stage->opcode, "HALT") == 0)
         {
-            if (dispatch_enabled(cpu, 0, 0, 0, 0))
+
+            int is_able=1;
+            if (is_able==1)
             {
                 dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Int_FU);
                 stage_clear(cpu, DRF);
+                if("")
+                {
+                    printf(" ");
+                }
             }
         }
-        
+
     }
         return 0;
 }
@@ -1019,209 +1233,465 @@ int decode(APEX_CPU* cpu)
  *  Note : You are free to edit this function according to your
  * 				 implementation
  */
-int execute_int(APEX_CPU* cpu)
-{
-    CPU_Stage* stage = &cpu->stage[Int_FU];
-    if (!stage->busy && !stage->stalled)
-    {
+ int execute_int(APEX_CPU* cpu)
+ {
+     CPU_Stage* stage = &cpu->stage[Int_FU];
 
-        if (strcmp(stage->opcode, "MOVC") == 0)
-        {
-          stage->buffer = stage->imm + 0;
-        }
+     if (!stage->busy && !stage->stalled)
+     {
 
-        if (strcmp(stage->opcode, "ADD") == 0)
-        {
-          stage->buffer = stage->rs1_value + stage->rs2_value;
-        }
-
-        if (strcmp(stage->opcode, "SUB") == 0)
-        {
-          stage->buffer = stage->rs1_value - stage->rs2_value;
-        }
-
-        if (strcmp(stage->opcode, "AND") == 0)
-        {
-          stage->buffer = stage->rs1_value & stage->rs2_value;
-        }
-
-        if (strcmp(stage->opcode, "OR") == 0) 
-        {
-          stage->buffer = stage->rs1_value | stage->rs2_value;
-        }
-
-        if (strcmp(stage->opcode, "EX-OR") == 0) 
-        {
-          stage->buffer = stage->rs1_value ^ stage->rs2_value;
-        }
-
-        if (strcmp(stage->opcode, "ADDL") == 0) 
-        {
-          stage->buffer = stage->rs1_value + stage->imm;
-        }
-
-        if (strcmp(stage->opcode, "SUBL") == 0) 
-        {
-          stage->buffer = stage->rs1_value - stage->imm;
-        }
-
-        if (strcmp(stage->opcode, "BZ") == 0) 
-        {
-            int branch_id = stage->branch_id;
-            int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
-            if (cpu->urf[phys_src].value == 0)
-            {
-                stage->target_address = stage->pc + stage->imm;
-                flow_control(cpu);
+         if (strcmp(stage->opcode, "MOVC") == 0)
+         {
+           stage->buffer = stage->imm + 0;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+         if("")
+         {
+            printf(" ");
             }
+
+         if (strcmp(stage->opcode, "ADD") == 0)
+         {
+           printf("\nstage->rs1_value=%d\n",stage->rs1_value);
+           printf("\nstage->rs2_value=%d\n",stage->rs2_value);
+
+           stage->buffer = stage->rs1_value + stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+
+         if("")
+        {
+            printf(" ");
         }
 
-        if (strcmp(stage->opcode, "BNZ") == 0)
+         if (strcmp(stage->opcode, "SUB") == 0)
+         {
+           stage->buffer = stage->rs1_value - stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+
+         if (strcmp(stage->opcode, "AND") == 0)
+         {
+           stage->buffer = stage->rs1_value & stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+
+         if("")
         {
-            int branch_id = stage->branch_id;
-            int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
-            if (cpu->urf[phys_src].value != 0)
+            printf(" ");
+        }
+         if (strcmp(stage->opcode, "OR") == 0)
+         {
+           stage->buffer = stage->rs1_value | stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+
+         if (strcmp(stage->opcode, "EX-OR") == 0)
+         {
+           stage->buffer = stage->rs1_value ^ stage->rs2_value;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+
+        if("")
+        {
+            printf(" ");
+        }
+         if (strcmp(stage->opcode, "ADDL") == 0)
+         {
+           stage->buffer = stage->rs1_value + stage->imm;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+
+         if (strcmp(stage->opcode, "SUBL") == 0)
+         {
+           stage->buffer = stage->rs1_value - stage->imm;
+           cpu->prf[stage->phys_rd].value = stage->buffer;
+           cpu->prf[stage->phys_rd].valid = 1;
+         }
+
+        if("")
+        {
+            printf(" ");
+        }
+         if (strcmp(stage->opcode, "BZ") == 0)
+         {
+             int branch_id = stage->branch_id;
+             int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
+             if (cpu->prf[phys_src].value == 0)
+             {
+                 stage->target_address = stage->pc + stage->imm;
+                 flow_control(cpu);
+             }
+         }
+
+         if (strcmp(stage->opcode, "BNZ") == 0)
+         {
+             int branch_id = stage->branch_id;
+             int phys_src = cpu->bis.bis_entry[branch_id].phys_src;
+             if (cpu->prf[phys_src].value != 0)
+             {
+                 stage->target_address = stage->pc + stage->imm;
+                 flow_control(cpu);
+             }
+             if("")
             {
-                stage->target_address = stage->pc + stage->imm;
-                flow_control(cpu);
+                printf(" ");
             }
+         }
+
+         if (strcmp(stage->opcode, "JUMP") == 0)
+         {
+             stage->target_address = stage->rs1_value + stage->imm;
+             flow_control(cpu);
+         }
+
+         if (strcmp(stage->opcode, "JAL") == 0)
+         {
+             stage->target_address = stage->rs1_value + stage->imm;
+             stage->buffer = stage->pc + 4;
+             flow_control(cpu);
+         }
+
+         if("")
+        {
+            printf(" ");
         }
 
-        if (strcmp(stage->opcode, "JUMP") == 0)
+         if (strcmp(stage->opcode, "STORE") == 0)
+         {
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
+
+         if (strcmp(stage->opcode, "STR") == 0)
+         {
+             stage->buffer = stage->rs2_value + stage->rs3_value;
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
+         if("")
         {
-            stage->target_address = stage->rs1_value + stage->imm;
-            flow_control(cpu);
+            printf(" ");
         }
 
-        if (strcmp(stage->opcode, "JAL") == 0) 
+         if (strcmp(stage->opcode, "LOAD") == 0)
+         {
+             stage->buffer = stage->rs1_value + stage->imm;
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
+
+         if("")
         {
-            stage->target_address = stage->rs1_value + stage->imm;
-            stage->buffer = stage->pc + 4;
-            printf("*** stage->target_address = %d\n", stage->target_address);
-            printf("*** stage->buffer = %d\n", stage->buffer);
-            flow_control(cpu);
+            printf(" ");
         }
 
-        if (strcmp(stage->opcode, "STORE") == 0) 
+         if (strcmp(stage->opcode, "LDR") == 0)
+         {
+             stage->buffer = stage->rs1_value + stage->rs2_value;
+             if (stage->buffer > 4096 || stage->buffer < 0)
+             {
+                 exception_handler(0, stage->opcode);
+             }
+             modify_lsq_entry(cpu, Int_FU);
+         }
+
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Int", cpu, Int_FU);
+         }
+
+         // Do not broadcast of those instructions that do not have physical destination address - BNZ, BZ, STORE
+         if (strcmp(stage->opcode, "") != 0 && stage->phys_rd != -1 && (strcmp(stage->opcode, "LOAD") != 0 || strcmp(stage->opcode, "LDR") != 0))
+         {
+             // cpu->prf[stage->phys_rd].value   = stage->buffer;
+             result_broadcast(cpu, Int_FU);
+         }
+
+         if("")
         {
-            stage->buffer = stage->rs2_value + stage->imm;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
+            printf(" ");
         }
 
-        if (strcmp(stage->opcode, "STR") == 0) 
-        {
-            stage->buffer = stage->rs2_value + stage->rs3_value;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
-        }
+         if (strcmp(stage->opcode, "") != 0 && stage->LSQ_index == -1)
+         {
+             // printf("\nIN modify_rob_entry\n");
+             // printf("\n FU_type=%d\n",Int_FU);
+             modify_rob_entry(cpu, Int_FU);
+         }
 
-        if (strcmp(stage->opcode, "LOAD") == 0)
-        {
-            stage->buffer = stage->rs1_value + stage->imm;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
-        }
+         cpu->stage[Int_FU2] = cpu->stage[Int_FU];
+         stage_clear(cpu, Int_FU);
+     }
 
-        if (strcmp(stage->opcode, "LDR") == 0)
-        {
-            stage->buffer = stage->rs1_value + stage->rs2_value;
-            if (stage->buffer > 4096 || stage->buffer < 0)
-            {
-                exception_handler(0, stage->opcode);
-            }
-            modify_lsq_entry(cpu, Int_FU);
-        }
+     else
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Int", cpu, Int_FU);
+         }
+     }
 
-        if (ENABLE_DEBUG_MESSAGES)
-        {
-            display_stage_content("Execute_Int", cpu, Int_FU);
-        }
+     return 0;
+ }
 
-        // Do not broadcast of those instructions that do not have physical destination address - BNZ, BZ, STORE
-        if (strcmp(stage->opcode, "") != 0 && stage->phys_rd != -1 && (strcmp(stage->opcode, "LOAD") != 0 || strcmp(stage->opcode, "LDR") != 0))
-        {
-            result_broadcast(cpu, Int_FU);
-        }
+ int execute_int2(APEX_CPU* cpu)
+ {
+    // printf("\ncpu->stage[Int_FU2].opcode=%s\n",cpu->stage[Int_FU2].opcode);
+     CPU_Stage* stage = &cpu->stage[Int_FU2];
+     if (!stage->busy && !stage->stalled)
+     {
 
-        // Update for those instructions that are not in LSQ
-        if (strcmp(stage->opcode, "") != 0 && stage->LSQ_index == -1)
-        {
-            modify_rob_entry(cpu, Int_FU);
-        }
-        stage_clear(cpu, Int_FU);
-    }
-    
-    else
-    {
-        if (ENABLE_DEBUG_MESSAGES)
-        {
-            display_stage_content("Execute_Int", cpu, Int_FU);
-        }
-    }
-    return 0;
-}
+         if (strcmp(stage->opcode, "MOVC") == 0)
+         {
 
+         }
+
+         if (strcmp(stage->opcode, "ADD") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "SUB") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "AND") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "OR") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "EX-OR") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "ADDL") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "SUBL") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "BZ") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "BNZ") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "JUMP") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "JAL") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "STORE") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "STR") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "LOAD") == 0)
+         {
+
+         }
+
+         if (strcmp(stage->opcode, "LDR") == 0)
+         {
+
+         }
+
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+           // printf("\n888888\n");
+             display_stage_content("Execute_Int2", cpu, Int_FU2);
+         }
+         // Update for those instructions that are not in LSQ
+         if (strcmp(stage->opcode, "") != 0 && stage->LSQ_index == -1)
+         {
+             modify_rob_entry(cpu, Int_FU2);
+         }
+
+         stage_clear(cpu, Int_FU2);
+     }
+
+     else
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Int2", cpu, Int_FU2);
+         }
+     }
+     return 0;
+ }
 
 /*  Execute Stage for MUL instruction
  *
  *  Note : You are free to edit this function according to your
  * 				 implementation
  */
-int execute_mul(APEX_CPU* cpu)
-{
-    CPU_Stage* stage = &cpu->stage[Mul_FU];
-    if (!stage->busy && !stage->stalled)
-    {
-        if (ENABLE_DEBUG_MESSAGES)
-        {
-            display_stage_content("Execute_Mul", cpu, Mul_FU);
-        }
+ int execute_mul(APEX_CPU* cpu)
+ {
+     CPU_Stage* stage = &cpu->stage[Mul_FU];
+     if (!stage->busy && !stage->stalled)
+     {
 
-        if (strcmp(stage->opcode, "MUL") == 0)
-        {
-            stage->buffer = stage->rs1_value * stage->rs2_value;
-            stage->stalled = 1;
-            cpu->mul_cycle++;
-        }
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul", cpu, Mul_FU);
 
-    }
+         }
+         if (strcmp(stage->opcode, "MUL") == 0)
+         {
+             stage->buffer = stage->rs1_value * stage->rs2_value;
+             stage->stalled = 1;
+             // cpu->mul_cycle++;
+
+             cpu->prf[stage->phys_rd].value = stage->buffer;
+             cpu->prf[stage->phys_rd].valid = 1;
+         }
+         cpu->stage[Mul_FU2] = cpu->stage[Mul_FU];
+         stage_clear(cpu, Mul_FU);
+
+     }
+     else
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul", cpu, Mul_FU);
+         }
+        
+     }
+     return 0;
+ }
+
+ int execute_mul2(APEX_CPU* cpu)
+ {
     
-    else
-    {
-        if (ENABLE_DEBUG_MESSAGES)
+     CPU_Stage* stage = &cpu->stage[Mul_FU2];
+
+
+     if (!stage->busy && !stage->stalled)
+     {
+
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul2", cpu, Mul_FU2);
+         }
+
+         if (strcmp(stage->opcode, "MUL") == 0)
+         {
+
+         }
+         cpu->stage[Mul_FU3] = cpu->stage[Mul_FU2];
+ 
+         stage_clear(cpu, Mul_FU2);
+ 
+     }
+     else
+     {
+ 
+
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+  
+             display_stage_content("Execute_Mul2", cpu, Mul_FU2);
+         }
+         cpu->stage[Mul_FU3] = cpu->stage[Mul_FU2];
+         stage_clear(cpu, Mul_FU2);
+         if("")
         {
-            display_stage_content("Execute_Mul", cpu, Mul_FU);
+          
         }
 
+        
+     }
+    
+     return 0;
+ }
+
+ int execute_mul3(APEX_CPU* cpu)
+ {
+
+     CPU_Stage* stage = &cpu->stage[Mul_FU3];
+
+
+     if (!stage->busy && !stage->stalled)
+     {
+         if (ENABLE_DEBUG_MESSAGES)
+         {
+             display_stage_content("Execute_Mul3", cpu, Mul_FU3);
+         }
+
+         if (strcmp(stage->opcode, "MUL") == 0)
+         {
+
+         }
+     }
+     else
+     {
+
+        if (ENABLE_DEBUG_MESSAGES)
+        {
+
+            display_stage_content("Execute_Mul3", cpu, Mul_FU3);
+        }
         if (strcmp(stage->opcode, "MUL") == 0)
         {
             stage->stalled = 0;
-            result_broadcast(cpu, Mul_FU);
-            modify_rob_entry(cpu, Mul_FU);
-            stage_clear(cpu, Mul_FU);
-            cpu->mul_cycle = 1;
-        }
-    }
-    return 0;
-}
 
+            modify_rob_entry(cpu, Mul_FU3);
+
+            stage_clear(cpu, Mul_FU3);
+            
+        }
+     }
+     return 0;
+ }
 
 int memory(APEX_CPU* cpu)
 {
     CPU_Stage* stage = &cpu->stage[MEM];
     if (!stage->busy && !stage->stalled)
     {
-        if (ENABLE_DEBUG_MESSAGES) 
+        if (ENABLE_DEBUG_MESSAGES)
         {
         display_stage_content("Memory", cpu, MEM);
         }
@@ -1231,6 +1701,10 @@ int memory(APEX_CPU* cpu)
           stage->buffer = cpu->data_memory[stage->mem_address];
           cpu->mem_cycle++;
           stage->stalled = 1;
+        }
+        if("")
+        {
+           
         }
 
         if (strcmp(stage->opcode, "STORE") == 0 || strcmp(stage->opcode, "STR") == 0)
@@ -1255,8 +1729,12 @@ int memory(APEX_CPU* cpu)
                 {
                     cpu->data_memory[stage->mem_address] = stage->rs1_value;
                 }
+                if("")
+                {
+                 
+                }
 
-            if (strcmp(stage->opcode, "LOAD") == 0 || strcmp(stage->opcode, "LDR") == 0) 
+            if (strcmp(stage->opcode, "LOAD") == 0 || strcmp(stage->opcode, "LDR") == 0)
             {
                 result_broadcast(cpu, MEM);
                 modify_rob_entry(cpu, MEM);
@@ -1267,7 +1745,7 @@ int memory(APEX_CPU* cpu)
             stage_clear(cpu, MEM);
             return 0;
         }
-        
+
         cpu->mem_cycle++;
         }
     }
@@ -1280,16 +1758,17 @@ int APEX_cpu_run(APEX_CPU* cpu)
 {
     while (cpu->clock <= cpu->code_memory_size)
     {
-        /* All the instructions committed, so exit */
+       
         if (cpu->simulation_completed)
         {
-            printf("\n=============================== SIMULATION FINISHED ============================\n");
+       
+            printf("\n#--#--#--#--#--#--#--#--#--#--#-- SIMULATION FINISHED #--#--#--#--#--#--#--#--#--#--\n");
             break;
         }
 
         if (ENABLE_DEBUG_MESSAGES)
         {
-            printf("\n================================ CLOCK CYCLE %d ================================\n\n", cpu->clock);
+            printf("\n^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ CLOCK CYCLE %d ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\n", cpu->clock);
         }
 
         if (save_rob_entry(cpu))
@@ -1298,14 +1777,17 @@ int APEX_cpu_run(APEX_CPU* cpu)
         }
 
         memory(cpu);
+        execute_int2(cpu);
         execute_int(cpu);
+        execute_mul3(cpu);
+        execute_mul2(cpu);
         execute_mul(cpu);
-        
+
         if (ENABLE_DEBUG_MESSAGES)
             { print_iq(cpu); }
-        
+
         iq_transition(cpu);
-        
+
         if (ENABLE_DEBUG_MESSAGES)
         {
           print_rob(cpu);
@@ -1313,10 +1795,10 @@ int APEX_cpu_run(APEX_CPU* cpu)
         }
 
         lsq_transition(cpu);
-        
+
         if (ENABLE_DEBUG_MESSAGES)
             { print_reg(cpu); }
-        
+
         decode(cpu);
         fetch(cpu);
 

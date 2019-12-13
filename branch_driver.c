@@ -25,7 +25,11 @@ int pull_bis(APEX_CPU* cpu)
     cpu->bis.tail++;
     if (cpu->bis.tail == BIS_ENTRIES_NUMBER)
     {
-        cpu->bis.tail = 0;
+        if("")
+        {
+            printf("...");
+        }
+        cpu->bis.tail = 0;   
     }
 
     return free_bis_entry_id;
@@ -45,9 +49,15 @@ void flushing_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
             strcpy(cpu->stage[FU_type].opcode, "");
             if (FU_type == Mul_FU)
             {
-                cpu->mul_cycle = 1;
+                // cpu->mul_cycle = 1;
                 cpu->stage[Mul_FU].stalled = 0;
             }
+            
+            if("")
+            {
+            printf(" ");
+            }
+            
             if (FU_type == MEM)
             {
                 cpu->mem_cycle = 1;
@@ -62,6 +72,10 @@ void flushing_F_D(APEX_CPU* cpu)
 {
     strcpy(cpu->stage[F].opcode, "");
     strcpy(cpu->stage[DRF].opcode, "");
+    if("")
+    {
+            printf(".");
+    }
     cpu->stage[F].stalled = 1;
     cpu->stage[DRF].stalled = 0;
 }
@@ -76,11 +90,16 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
     {
         branch_id = 0;
     }
-    
+
     if (branch_id <= cpu->last_branch_id)
     {
         while (branch_id <= cpu->last_branch_id)
         {
+            if("")
+            {
+            printf(".");
+            }
+    
             cpu->bis.bis_entry[branch_id].free = 1;
             branch_id++;
         }
@@ -92,11 +111,17 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
             cpu->bis.bis_entry[branch_id].free = 1;
             branch_id++;
         }
-        
+
         branch_id = 0;
-        
+
         while (branch_id <= cpu->last_branch_id)
         {
+            
+            if("")
+            {
+            printf(".");
+            }
+    
             cpu->bis.bis_entry[branch_id].free = 1;
             branch_id++;
         }
@@ -107,10 +132,20 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
     if (initial_branch_id == BIS_ENTRIES_NUMBER)
     {
         cpu->bis.tail = 0;
+        if("")
+        {
+            printf(".");
+        }
+    
     }
     else
     {
         cpu->bis.tail = initial_branch_id;
+        if("")
+        {
+            printf(".");
+        }
+    
     }
 }
 
