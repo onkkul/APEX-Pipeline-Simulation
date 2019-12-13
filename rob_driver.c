@@ -233,7 +233,7 @@ int search_branch_in_rob(APEX_CPU* cpu)
 {
     for (int i = 0; i < ROB_ENTRIES_NUMBER; i++)
     {
-        if (!cpu->rob.rob_entry[i].free && cpu->rob.rob_entry[i].pc == cpu->stage[Int_FU].pc)
+        if (!cpu->rob.rob_entry[i].free && cpu->rob.rob_entry[i].pc == cpu->stage[Branch_FU].pc)
         {
             return i;
         }

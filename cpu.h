@@ -17,7 +17,7 @@ enum STAGES
 {
     F,
     DRF,
-    Int_FU,
+    Branch_FU,
     Mul_FU,
     MEM,
     NUM_STAGES
@@ -289,7 +289,7 @@ int fetch(APEX_CPU* cpu);
 int decode(APEX_CPU* cpu);
 
 
-int execute_int(APEX_CPU* cpu);
+int execute_branch(APEX_CPU* cpu);
 
 
 int execute_mul(APEX_CPU* cpu);

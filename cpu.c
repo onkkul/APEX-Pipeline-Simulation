@@ -360,7 +360,7 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
             print_instruction(0, stage);
         }
 
-        if (strcmp(name, "Execute_Int") == 0)
+        if (strcmp(name, "Execute_Branch") == 0)
         {
             printf("%-15s: pc(%d) ", name, stage->pc);
             print_instruction(0, stage);
@@ -428,7 +428,7 @@ void flow_control(APEX_CPU* cpu)
     restore_urf_rat(cpu);
     cpu->stage[F].busy = 0;
     cpu->stage[DRF].stalled = 0;
-    cpu->pc = cpu->stage[Int_FU].target_address;
+    cpu->pc = cpu->stage[Branch_FU].target_address;
     cpu->fill_in_rob = 0;
 }
 
@@ -733,7 +733,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 1, 0, 0, 1))
             {
-                dispatch_ins(cpu, 1, 0, 0, 0, 0, 0, Int_FU);
+                dispatch_ins(cpu, 1, 0, 0, 0, 0, 0, Branch_FU);
             }
             else
             {
@@ -757,7 +757,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 1, 0, 0, 1))
             {
-                dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Int_FU);
+                dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Branch_FU);
             }
             else
             {
@@ -769,7 +769,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 1, 0, 0, 1))
             {
-                dispatch_ins(cpu, 1, 1, 0, 0, 0, 0, Int_FU);
+                dispatch_ins(cpu, 1, 1, 0, 0, 0, 0, Branch_FU);
             }
             else
             {
@@ -781,7 +781,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 0, 0, 1, 1))
             {
-                dispatch_ins(cpu, 0, 0, 0, 0, 0, 1, Int_FU);
+                dispatch_ins(cpu, 0, 0, 0, 0, 0, 1, Branch_FU);
             }
             else 
             {
@@ -793,7 +793,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 0, 1, 0, 1)) 
             {
-                dispatch_ins(cpu, 0, 1, 1, 0, 1, 0, Int_FU);
+                dispatch_ins(cpu, 0, 1, 1, 0, 1, 0, Branch_FU);
             }
             else
             {
@@ -805,7 +805,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 0, 1, 0, 1)) 
             {
-                dispatch_ins(cpu, 0, 1, 1, 1, 1, 0, Int_FU);
+                dispatch_ins(cpu, 0, 1, 1, 1, 1, 0, Branch_FU);
             }
             else
             {
@@ -817,7 +817,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 1, 1, 0, 1))
             {
-                dispatch_ins(cpu, 1, 1, 0, 0, 1, 0, Int_FU);
+                dispatch_ins(cpu, 1, 1, 0, 0, 1, 0, Branch_FU);
             }
 
             else
@@ -830,7 +830,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 1, 1, 0, 1))
             {
-                dispatch_ins(cpu, 1, 1, 1, 0, 1, 0, Int_FU);
+                dispatch_ins(cpu, 1, 1, 1, 0, 1, 0, Branch_FU);
             }
 
             else
@@ -838,12 +838,13 @@ int decode(APEX_CPU* cpu)
                 stage->stalled = 1;
             }
         }
-
+        // int dispatch_enabled(APEX_CPU* cpu, int dest, int lsq, int branch, int iq)
         if (strcmp(stage->opcode, "JUMP") == 0) 
         {
             if (dispatch_enabled(cpu, 0, 0, 1, 1)) 
             {
-                dispatch_ins(cpu, 0, 1, 0, 0, 0, 1, Int_FU);
+                // int dispatch_ins(APEX_CPU* cpu, int dest, int src1, int src2, int src3, int lsq, int branch, enum STAGES FU_type)
+                dispatch_ins(cpu, 0, 1, 0, 0, 0, 1, Branch_FU);
             }
             else
             {
@@ -855,7 +856,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 1, 0, 1, 1))
             {
-                dispatch_ins(cpu, 1, 1, 0, 0, 0, 1, Int_FU);
+                dispatch_ins(cpu, 1, 1, 0, 0, 0, 1, Branch_FU);
             }
             else
             {
@@ -876,7 +877,7 @@ int decode(APEX_CPU* cpu)
             stage->stalled = 1;
             if (dispatch_enabled(cpu, 0, 0, 0, 0))
             {
-                dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Int_FU);
+                dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Branch_FU);
                 stage_clear(cpu, DRF);
             }
         }
@@ -890,7 +891,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 1, 0, 0, 1)) 
                 {
-                    dispatch_ins(cpu, 1, 0, 0, 0, 0, 0, Int_FU);
+                    dispatch_ins(cpu, 1, 0, 0, 0, 0, 0, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -899,7 +900,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 1, 0, 0, 1))
                 {
-                    dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Int_FU);
+                    dispatch_ins(cpu, 1, 1, 1, 0, 0, 0, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -908,7 +909,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 1, 0, 0, 1))
                 {
-                    dispatch_ins(cpu, 1, 1, 0, 0, 0, 0, Int_FU);
+                    dispatch_ins(cpu, 1, 1, 0, 0, 0, 0, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -926,7 +927,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 0, 0, 1, 1)) 
                 {
-                    dispatch_ins(cpu, 0, 0, 0, 0, 0, 1, Int_FU);
+                    dispatch_ins(cpu, 0, 0, 0, 0, 0, 1, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -935,7 +936,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 0, 1, 0, 1))
                 {
-                    dispatch_ins(cpu, 0, 1, 1, 0, 1, 0, Int_FU);
+                    dispatch_ins(cpu, 0, 1, 1, 0, 1, 0, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -944,7 +945,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 0, 1, 0, 1))
                 {
-                    dispatch_ins(cpu, 0, 1, 1, 1, 1, 0, Int_FU);
+                    dispatch_ins(cpu, 0, 1, 1, 1, 1, 0, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -953,7 +954,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 1, 1, 0, 1)) 
                 {
-                    dispatch_ins(cpu, 1, 1, 0, 0, 1, 0, Int_FU);
+                    dispatch_ins(cpu, 1, 1, 0, 0, 1, 0, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -962,7 +963,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 1, 1, 0, 1)) 
                 {
-                    dispatch_ins(cpu, 1, 1, 1, 0, 1, 0, Int_FU);
+                    dispatch_ins(cpu, 1, 1, 1, 0, 1, 0, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -971,7 +972,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 0, 0, 1, 1))
                 {
-                    dispatch_ins(cpu, 0, 1, 0, 0, 0, 1, Int_FU);
+                    dispatch_ins(cpu, 0, 1, 0, 0, 0, 1, Branch_FU);
                     stage->stalled = 0;
                 }
             }
@@ -980,7 +981,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 1, 0, 1, 1))
                 {
-                  dispatch_ins(cpu, 1, 1, 0, 0, 0, 1, Int_FU);
+                  dispatch_ins(cpu, 1, 1, 0, 0, 0, 1, Branch_FU);
                   stage->stalled = 0;
                 }
             }
@@ -989,7 +990,7 @@ int decode(APEX_CPU* cpu)
             {
                 if (dispatch_enabled(cpu, 0, 0, 0, 0))
                 {
-                  dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Int_FU);
+                  dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Branch_FU);
                 }
             }
         }
@@ -1004,7 +1005,7 @@ int decode(APEX_CPU* cpu)
         {
             if (dispatch_enabled(cpu, 0, 0, 0, 0))
             {
-                dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Int_FU);
+                dispatch_ins(cpu, 0, 0, 0, 0, 0, 0, Branch_FU);
                 stage_clear(cpu, DRF);
             }
         }
@@ -1019,9 +1020,9 @@ int decode(APEX_CPU* cpu)
  *  Note : You are free to edit this function according to your
  * 				 implementation
  */
-int execute_int(APEX_CPU* cpu)
+int execute_branch(APEX_CPU* cpu)
 {
-    CPU_Stage* stage = &cpu->stage[Int_FU];
+    CPU_Stage* stage = &cpu->stage[Branch_FU];
     if (!stage->busy && !stage->stalled)
     {
 
@@ -1090,6 +1091,7 @@ int execute_int(APEX_CPU* cpu)
         if (strcmp(stage->opcode, "JUMP") == 0)
         {
             stage->target_address = stage->rs1_value + stage->imm;
+            stage->buffer = stage->imm;
             flow_control(cpu);
         }
 
@@ -1109,7 +1111,7 @@ int execute_int(APEX_CPU* cpu)
             {
                 exception_handler(0, stage->opcode);
             }
-            modify_lsq_entry(cpu, Int_FU);
+            modify_lsq_entry(cpu, Branch_FU);
         }
 
         if (strcmp(stage->opcode, "STR") == 0) 
@@ -1119,7 +1121,7 @@ int execute_int(APEX_CPU* cpu)
             {
                 exception_handler(0, stage->opcode);
             }
-            modify_lsq_entry(cpu, Int_FU);
+            modify_lsq_entry(cpu, Branch_FU);
         }
 
         if (strcmp(stage->opcode, "LOAD") == 0)
@@ -1129,7 +1131,7 @@ int execute_int(APEX_CPU* cpu)
             {
                 exception_handler(0, stage->opcode);
             }
-            modify_lsq_entry(cpu, Int_FU);
+            modify_lsq_entry(cpu, Branch_FU);
         }
 
         if (strcmp(stage->opcode, "LDR") == 0)
@@ -1139,33 +1141,33 @@ int execute_int(APEX_CPU* cpu)
             {
                 exception_handler(0, stage->opcode);
             }
-            modify_lsq_entry(cpu, Int_FU);
+            modify_lsq_entry(cpu, Branch_FU);
         }
 
         if (ENABLE_DEBUG_MESSAGES)
         {
-            display_stage_content("Execute_Int", cpu, Int_FU);
+            display_stage_content("Execute_Branch", cpu, Branch_FU);
         }
 
         // Do not broadcast of those instructions that do not have physical destination address - BNZ, BZ, STORE
         if (strcmp(stage->opcode, "") != 0 && stage->phys_rd != -1 && (strcmp(stage->opcode, "LOAD") != 0 || strcmp(stage->opcode, "LDR") != 0))
         {
-            result_broadcast(cpu, Int_FU);
+            result_broadcast(cpu, Branch_FU);
         }
 
         // Update for those instructions that are not in LSQ
         if (strcmp(stage->opcode, "") != 0 && stage->LSQ_index == -1)
         {
-            modify_rob_entry(cpu, Int_FU);
+            modify_rob_entry(cpu, Branch_FU);
         }
-        stage_clear(cpu, Int_FU);
+        stage_clear(cpu, Branch_FU);
     }
     
     else
     {
         if (ENABLE_DEBUG_MESSAGES)
         {
-            display_stage_content("Execute_Int", cpu, Int_FU);
+            display_stage_content("Execute_Branch", cpu, Branch_FU);
         }
     }
     return 0;
@@ -1298,7 +1300,7 @@ int APEX_cpu_run(APEX_CPU* cpu)
         }
 
         memory(cpu);
-        execute_int(cpu);
+        execute_branch(cpu);
         execute_mul(cpu);
         
         if (ENABLE_DEBUG_MESSAGES)

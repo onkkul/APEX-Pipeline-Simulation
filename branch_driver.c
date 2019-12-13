@@ -116,7 +116,7 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
 
 void flush_ins(APEX_CPU* cpu)
 {
-    int branch_id = cpu->stage[Int_FU].branch_id;
+    int branch_id = cpu->stage[Branch_FU].branch_id;
     flushing_FUs(cpu, branch_id, Mul_FU);
     flushing_FUs(cpu, branch_id, MEM);
     flush_iq(cpu, branch_id);

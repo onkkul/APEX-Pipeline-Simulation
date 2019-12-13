@@ -150,7 +150,7 @@ void commit_urf_rat(APEX_CPU* cpu, int branch_id)
 
 void restore_urf_rat(APEX_CPU* cpu)
 {
-    int branch_id = cpu->stage[Int_FU].branch_id;
+    int branch_id = cpu->stage[Branch_FU].branch_id;
     
     for (int j=0; j < RAT_ENTRIES_NUMBER; j++)
     {

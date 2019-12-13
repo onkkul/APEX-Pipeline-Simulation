@@ -294,7 +294,7 @@ void flush_iq(APEX_CPU* cpu, int branch_id)
 int iq_transition(APEX_CPU* cpu)
 {
     
-    fetch_ins_for_FUs(cpu, Int_FU);
+    fetch_ins_for_FUs(cpu, Branch_FU);
     fetch_ins_for_FUs(cpu, Mul_FU);
     update_counters(cpu);
     return 0;
