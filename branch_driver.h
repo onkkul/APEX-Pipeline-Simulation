@@ -1,6 +1,3 @@
-/* branch_driver.h
- *  State University of New York, Binghamton
- */
 
 int check_bis_free(APEX_CPU* cpu);
 

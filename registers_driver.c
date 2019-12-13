@@ -19,6 +19,11 @@ int check_pr_free(APEX_CPU* cpu)
         {
             //printf(" ");
         }
+        int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
     }
     return 0;
 }
@@ -37,6 +42,11 @@ int pull_pr(APEX_CPU* cpu)
         {
             //printf(" ");
         }
+        int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
     }
     return -1;
 }
@@ -82,6 +92,11 @@ void release_pr(APEX_CPU* cpu, int arch_reg, int phys_reg)
     {
            // printf(" ");
     }
+    int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
 }
 
 
@@ -111,6 +126,11 @@ void rename_src1(APEX_CPU* cpu)
         {
             //printf(" ");
         }
+        int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
 
       stage->phys_rs1 = cpu->arf[arch_rs1].allocate_phys_reg;
 
@@ -161,6 +181,11 @@ void rename_src2(APEX_CPU* cpu)
         {
             //printf(" ");
         }
+        int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
     }
 
 
@@ -193,6 +218,11 @@ void rename_src3(APEX_CPU* cpu)
         {
             //printf(" ");
         }
+        int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
     }
 
 
@@ -211,6 +241,11 @@ void read_src1(APEX_CPU* cpu)
   if("")
     {
           //  printf(" ");
+    }
+    int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
     }
 
 }
@@ -246,7 +281,6 @@ void record_prf(APEX_CPU* cpu, enum STAGES FU_type)
     int result = cpu->stage[FU_type].buffer;
     cpu->prf[phys_reg].value = result;
     cpu->prf[phys_reg].valid = 1;
-
 }
 
 
@@ -260,6 +294,11 @@ void commit_prf_allocate(APEX_CPU* cpu, int branch_id)
     if("")
     {
      //       printf(" ");
+    }
+    int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
     }
 }
 
@@ -288,11 +327,16 @@ void print_allocate(APEX_CPU* cpu)
       }
       if("")
         {
-            printf(" ");
+            //printf(" ");
+    }
+    int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
     }
   }
   printf("\n");
-  printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
+  printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
 
 
 
@@ -314,21 +358,17 @@ void print_allocate(APEX_CPU* cpu)
     printf("\n");
     printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
 
-
-
 }
-
-
 
 void display_stored_allocate(APEX_CPU* cpu, int branch_id)
 {
-    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     printf("Details of saved prf State for Branch ID: %d\n", branch_id);
     for (int i = 0; i < ALLOCATE_PHY_REGISTER; i++)
     {
         if (cpu->bis.backup_entry[branch_id].arf[i].allocate_phys_reg != -1)
         {
-            printf("| prf[%d] = U%d |",i, cpu->bis.backup_entry[branch_id].arf[i].allocate_phys_reg);
+            printf("PRF[%d] = R%d |",i, cpu->bis.backup_entry[branch_id].arf[i].allocate_phys_reg);
         }
     }
     printf("\n");
@@ -342,7 +382,7 @@ void print_reg(APEX_CPU* cpu)
 
 void print_arf(APEX_CPU* cpu)
 {
-    printf("\n========================== STATE OF ARCH REGISTER FILE ==========================\n");
+    printf("\n------------------------- STATE OF ARCH REGISTER FILE -------------------------\n");
     for (int i = 0; i < ARF_ENTRIES_NUMBER; i++)
     {
         // if (cpu->arf[i].valid)
@@ -350,18 +390,18 @@ void print_arf(APEX_CPU* cpu)
             printf("         |\tarf[%d]\t|\tValue = %d\t|\tStatus = %d\t|\n",i, cpu->arf[i].value, cpu->arf[i].valid);
         // }
     }
-    printf("==================================================================================\n");
+    printf("----------------------------------------------------------------------------------------------------\n");
 }
 
 
 void print_datamem(APEX_CPU* cpu)
 {
-  printf("\n=============================== STATE OF DATA MEMORY ===============================\n");
+  printf("\n===================================== STATE OF DATA MEMORY ======================================\n");
     for (int i = 0; i < 100; i++)
     {
         printf("                     |\tMEM[%d]\t|\tData Value = %d\t|\n",i, cpu->data_memory[i]);
     }
-    printf("================================================================================\n\n");
+    printf("----------------------------------------------------------------------------------------------------\n\n");
 }
 
 

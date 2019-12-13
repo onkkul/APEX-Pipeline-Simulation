@@ -1,7 +1,3 @@
-/* cpu.h
- *  Contains various CPU and Pipeline Data structures
- *  State University of New York, Binghamton
- */
 
 #ifndef _APEX_CPU_H_
 #define _APEX_CPU_H_
@@ -154,12 +150,6 @@ typedef struct PHYSICAL_REGISTER_FILE_Entry
 
     int which_arch_reg;
 
-    // RENAME_ALIAS_TABLE_Entry part
-    // int allocate_phys_reg;   // The most recent physical register for an architectural register in prf
-
-    // // RETIREMENT_RENAME_ALIAS_TABLE_Entry tag part
-    // int deallocate_commited_phys_reg; // Commited physical register for an architectural register in prf
-
 } PHYSICAL_REGISTER_FILE_Entry;
 
 typedef struct ARCHITECTURAL_REGISTER_FILE_Entry
@@ -171,20 +161,9 @@ typedef struct ARCHITECTURAL_REGISTER_FILE_Entry
     // RENAME_ALIAS_TABLE_Entry part
     int allocate_phys_reg;    // The most recent physical register for an architectural register in prf
 
-    // RETIREMENT_RENAME_ALIAS_TABLE_Entry tag part
-    // int deallocate_commited_phys_reg; // Commited physical register for an architectural register in prf
 
 } ARCHITECTURAL_REGISTER_FILE_Entry;
 
-// typedef struct RENAME_ALIAS_TABLE_Entry
-// {
-//     int phys_reg;   // The most recent physical register for an architectural register in prf
-// } RENAME_ALIAS_TABLE_Entry;
-
-// typedef struct RETIREMENT_RENAME_ALIAS_TABLE_Entry
-// {
-//     int commited_phys_reg; // Commited physical register for an architectural register in prf
-// } RETIREMENT_RENAME_ALIAS_TABLE_Entry;
 
 typedef struct BIS_Entry
 {
@@ -263,12 +242,6 @@ typedef struct APEX_CPU
 
     PHYSICAL_REGISTER_FILE_Entry prf[PRF_ENTRIES_NUMBER];
     ARCHITECTURAL_REGISTER_FILE_Entry arf[ARF_ENTRIES_NUMBER];
-
-    // /* Rename Table for 5 architectural registers */
-    // RENAME_ALIAS_TABLE_Entry allocate[ALLOCATE_PHY_REGISTER];
-
-    //  Back-end Register Alias Table - 5 architectural registers point to committed physical registers in prf
-    // RETIREMENT_RENAME_ALIAS_TABLE_Entry deallocate[DEALLOCATE_PHY_REGISTER];
 
     /* Issue Queue with 2 entries */
     ISSUE_QUEUE iq;

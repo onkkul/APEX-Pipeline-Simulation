@@ -4,10 +4,6 @@
 
 #include "cpu.h"
 
-/* This function is related to parsing input file
- *
- * Note : You are not supposed to edit this function
- */
 static int get_input_from_string(char* buffer)
 {
     char str[16];
@@ -34,7 +30,7 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
     char* token = strtok(buffer, ",");
     int token_num = 0;
     char tokens[6][128];
-    while (token != NULL) 
+    while (token != NULL)
     {
         strcpy(tokens[token_num], token);
         token_num++;
@@ -43,29 +39,29 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
 
     strcpy(ins->opcode, tokens[0]);
 
-    if (strcmp(ins->opcode, "MOVC") == 0) 
+    if (strcmp(ins->opcode, "MOVC") == 0)
     {
         ins->rd = get_input_from_string(tokens[1]);
 
-        if (ins->rd > 24 || ins->rd < 0) 
+        if (ins->rd > 24 || ins->rd < 0)
         {
             exception_handler(1, ins->opcode);
         }
         if("")
         {
-         
+
         }
 
         ins->imm = get_input_from_string(tokens[2]);
     }
 
-    
-    if (strcmp(ins->opcode, "STORE") == 0) 
+
+    if (strcmp(ins->opcode, "STORE") == 0)
     {
         ins->rs1 = get_input_from_string(tokens[1]);
         ins->rs2 = get_input_from_string(tokens[2]);
 
-        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0)) 
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0))
         {
             exception_handler(1, ins->opcode);
         }
@@ -78,102 +74,102 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
     }
 
     //added oafterwards by onkar 22 nov 11:43
-    if (strcmp(ins->opcode, "STR") == 0) 
+    if (strcmp(ins->opcode, "STR") == 0)
     {
         ins->rs1 = get_input_from_string(tokens[1]);
         ins->rs2 = get_input_from_string(tokens[2]);
         ins->rs3 = get_input_from_string(tokens[3]);
 
-        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs3 < 0)) 
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs3 < 0))
         {
             exception_handler(1, ins->opcode);
         }
     }
 
-    if (strcmp(ins->opcode, "LOAD") == 0) 
+    if (strcmp(ins->opcode, "LOAD") == 0)
     {
         ins->rd = get_input_from_string(tokens[1]);
         ins->rs1 = get_input_from_string(tokens[2]);
         ins->imm = get_input_from_string(tokens[3]);
         if("")
         {
-        
+
         }
     }
 
     //added oafterwards by onkar 22 nov 11:43
-    if (strcmp(ins->opcode, "LDR") == 0) 
+    if (strcmp(ins->opcode, "LDR") == 0)
     {
         ins->rd = get_input_from_string(tokens[1]);
         ins->rs1 = get_input_from_string(tokens[2]);
         ins->rs2 = get_input_from_string(tokens[3]);
         if("")
         {
-        
+
         }
     }
 
-    if (strcmp(ins->opcode, "ADD") == 0 || strcmp(ins->opcode, "SUB") == 0 || strcmp(ins->opcode, "AND") == 0 || strcmp(ins->opcode, "OR") == 0 || strcmp(ins->opcode, "EX-OR") == 0 || strcmp(ins->opcode, "MUL") == 0) 
+    if (strcmp(ins->opcode, "ADD") == 0 || strcmp(ins->opcode, "SUB") == 0 || strcmp(ins->opcode, "AND") == 0 || strcmp(ins->opcode, "OR") == 0 || strcmp(ins->opcode, "EX-OR") == 0 || strcmp(ins->opcode, "MUL") == 0)
     {
 
         ins->rd = get_input_from_string(tokens[1]);
         ins->rs1 = get_input_from_string(tokens[2]);
         ins->rs2 = get_input_from_string(tokens[3]);
 
-        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0) || (ins->rd > 24 || ins->rd < 0)) 
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0) || (ins->rd > 24 || ins->rd < 0))
         {
             exception_handler(1, ins->opcode);
             if("")
             {
-                
+
             }
         }
     }
 
-    if (strcmp(ins->opcode, "ADDL") == 0 || strcmp(ins->opcode, "SUBL") == 0)  
+    if (strcmp(ins->opcode, "ADDL") == 0 || strcmp(ins->opcode, "SUBL") == 0)
     {
 
         ins->rd = get_input_from_string(tokens[1]);
         ins->rs1 = get_input_from_string(tokens[2]);
         ins->imm = get_input_from_string(tokens[3]);
 
-        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rd > 24 || ins->rd < 0)) 
+        if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rd > 24 || ins->rd < 0))
         {
             exception_handler(1, ins->opcode);
             if("")
             {
-                
+
             }
         }
     }
 
-    if (strcmp(ins->opcode, "BZ") == 0 || strcmp(ins->opcode, "BNZ") == 0) 
+    if (strcmp(ins->opcode, "BZ") == 0 || strcmp(ins->opcode, "BNZ") == 0)
     {
         ins->imm = get_input_from_string(tokens[1]);
     }
 
-    if (strcmp(ins->opcode, "JUMP") == 0) 
+    if (strcmp(ins->opcode, "JUMP") == 0)
     {
         ins->rs1 = get_input_from_string(tokens[1]);
 
-        if (ins->rs1 > 24 || ins->rs1 < 0) 
+        if (ins->rs1 > 24 || ins->rs1 < 0)
         {
             exception_handler(1, ins->opcode);
             if("")
             {
-                
+
             }
         }
 
         ins->imm = get_input_from_string(tokens[2]);
     }
 
-    if (strcmp(ins->opcode, "JAL") == 0) 
+    if (strcmp(ins->opcode, "JAL") == 0)
     {
         ins->rd = get_input_from_string(tokens[1]);
         ins->rs1 = get_input_from_string(tokens[2]);
 
-        if (ins->rs1 > 24 || ins->rs1 < 0) 
+        if (ins->rs1 > 24 || ins->rs1 < 0)
         {
             exception_handler(1, ins->opcode);
         }
@@ -192,13 +188,13 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
  */
 APEX_Instruction* create_code_memory(const char* filename, int* size)
 {
-    if (!filename) 
+    if (!filename)
     {
         return NULL;
     }
 
     FILE* fp = fopen(filename, "r");
-    if (!fp) 
+    if (!fp)
     {
         return NULL;
     }
@@ -208,22 +204,22 @@ APEX_Instruction* create_code_memory(const char* filename, int* size)
     ssize_t nread;
     int code_memory_size = 0;
 
-    while ((nread = getline(&line, &len, fp)) != -1) 
+    while ((nread = getline(&line, &len, fp)) != -1)
     {
         code_memory_size++;
     }
-    
+
     *size = code_memory_size;
-    
-    if (!code_memory_size) 
+
+    if (!code_memory_size)
     {
         fclose(fp);
         return NULL;
     }
 
     APEX_Instruction* code_memory = malloc(sizeof(*code_memory) * code_memory_size);
-    
-    if (!code_memory) 
+
+    if (!code_memory)
     {
         fclose(fp);
         return NULL;
@@ -231,7 +227,7 @@ APEX_Instruction* create_code_memory(const char* filename, int* size)
 
     rewind(fp);
     int current_instruction = 0;
-    while ((nread = getline(&line, &len, fp)) != -1) 
+    while ((nread = getline(&line, &len, fp)) != -1)
     {
         create_APEX_instruction(&code_memory[current_instruction], line);
         current_instruction++;

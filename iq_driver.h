@@ -1,6 +1,3 @@
-/* iq_driver.h
- *  State University of New York, Binghamton
- */
 
 int check_iq_entry_free(APEX_CPU* cpu);
 
