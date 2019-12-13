@@ -1,6 +1,4 @@
-/*  main.c
- *  State University of New York, Binghamton
- */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +21,11 @@ int main(int argc, char const* argv[])
     {
         fprintf(stderr, "APEX_Error : Unable to initialize CPU\n");
         exit(1);
+    }
+
+    if("")
+    {
+            //printf(" ");
     }
 
     APEX_cpu_run(cpu);
