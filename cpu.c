@@ -14,6 +14,7 @@
 int ENABLE_DEBUG_MESSAGES;
 
 
+/* This function creates and initializes APEX cpu. */
 APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cycles)
 {
     if (!filename && !function && !cycles)
@@ -54,7 +55,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         // {
         //     printf(".");
         // }
-
+    
     }
 
 
@@ -69,7 +70,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
         // {
         //     printf(".");
         // }
-
+    
         // Initialize allocate
         cpu->prf[i].which_arch_reg = -1;
 
@@ -120,7 +121,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
             // {
             // printf(" ");
             // }
-
+    
         }
     }
 
@@ -167,7 +168,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
     }
 
 
-    memset(cpu->data_memory, -1, sizeof(int) * 4000);
+    memset(cpu->data_memory, 0, sizeof(int) * 4000);
 
     /* Parse input file and create code memory */
     cpu->code_memory = create_code_memory(filename, &cpu->code_memory_size);
@@ -187,7 +188,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
     // {
     //         printf(" ");
     // }
-
+    
     if (ENABLE_DEBUG_MESSAGES)
     {
         fprintf(stderr,"APEX_CPU : Initialized APEX CPU, loaded %d instructions\n", cpu->code_memory_size);
@@ -201,7 +202,7 @@ APEX_CPU* APEX_cpu_init(const char* filename, const char* function, const int cy
             // {
             // printf(" ");
             // }
-
+    
         }
     }
 
@@ -367,7 +368,7 @@ void print_instruction(int fetch_decode, CPU_Stage* stage)
     // {
     //         printf(".");
     // }
-
+    
 }
 
 
@@ -398,7 +399,7 @@ static void display_stage_content(char* name, APEX_CPU* cpu, enum STAGES FU_type
         // {
         //     printf(".");
         // }
-
+    
         if (strcmp(name, "Memory") == 0)
         {
             printf("%-15s: ", name);
@@ -911,7 +912,7 @@ int decode(APEX_CPU* cpu)
             {
                  printf(" ");
             }
-
+            
             if (is_able==1)
             {
                 dispatch_ins(cpu, 1, 1, 1, 0, 1, 0, Int_FU);
@@ -1596,14 +1597,14 @@ int decode(APEX_CPU* cpu)
          {
              display_stage_content("Execute_Mul", cpu, Mul_FU);
          }
-
+        
      }
      return 0;
  }
 
  int execute_mul2(APEX_CPU* cpu)
  {
-
+    
      CPU_Stage* stage = &cpu->stage[Mul_FU2];
 
 
@@ -1620,29 +1621,29 @@ int decode(APEX_CPU* cpu)
 
          }
          cpu->stage[Mul_FU3] = cpu->stage[Mul_FU2];
-
+ 
          stage_clear(cpu, Mul_FU2);
-
+ 
      }
      else
      {
-
+ 
 
          if (ENABLE_DEBUG_MESSAGES)
          {
-
+  
              display_stage_content("Execute_Mul2", cpu, Mul_FU2);
          }
          cpu->stage[Mul_FU3] = cpu->stage[Mul_FU2];
          stage_clear(cpu, Mul_FU2);
          if("")
         {
-
+          
         }
 
-
+        
      }
-
+    
      return 0;
  }
 
@@ -1679,7 +1680,7 @@ int decode(APEX_CPU* cpu)
             modify_rob_entry(cpu, Mul_FU3);
 
             stage_clear(cpu, Mul_FU3);
-
+            
         }
      }
      return 0;
@@ -1697,15 +1698,13 @@ int memory(APEX_CPU* cpu)
 
         if (strcmp(stage->opcode, "LOAD") == 0 || strcmp(stage->opcode, "LDR") == 0)
         {
-          printf("\nstage->mem_addres=%d\n",stage->mem_address);
           stage->buffer = cpu->data_memory[stage->mem_address];
-          printf("\nstage->buffer=%d\n",stage->buffer);
           cpu->mem_cycle++;
           stage->stalled = 1;
         }
         if("")
         {
-
+           
         }
 
         if (strcmp(stage->opcode, "STORE") == 0 || strcmp(stage->opcode, "STR") == 0)
@@ -1732,15 +1731,11 @@ int memory(APEX_CPU* cpu)
                 }
                 if("")
                 {
-
+                 
                 }
 
             if (strcmp(stage->opcode, "LOAD") == 0 || strcmp(stage->opcode, "LDR") == 0)
             {
-              printf("\nstage->mem_addres=%d\n",stage->mem_address);
-
-                stage->buffer = cpu->data_memory[stage->mem_address];
-                printf("\nstage->buffer=%d\n",stage->buffer);
                 result_broadcast(cpu, MEM);
                 modify_rob_entry(cpu, MEM);
             }
@@ -1763,10 +1758,10 @@ int APEX_cpu_run(APEX_CPU* cpu)
 {
     while (cpu->clock <= cpu->code_memory_size)
     {
-
+       
         if (cpu->simulation_completed)
         {
-
+       
             printf("\n#--#--#--#--#--#--#--#--#--#--#-- SIMULATION FINISHED #--#--#--#--#--#--#--#--#--#--\n");
             break;
         }
