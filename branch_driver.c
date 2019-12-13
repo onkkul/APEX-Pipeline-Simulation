@@ -45,7 +45,7 @@ void flushing_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
             strcpy(cpu->stage[FU_type].opcode, "");
             if (FU_type == Mul_FU)
             {
-                cpu->mul_cycle = 1;
+                // cpu->mul_cycle = 1;
                 cpu->stage[Mul_FU].stalled = 0;
             }
             if (FU_type == MEM)
@@ -76,7 +76,7 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
     {
         branch_id = 0;
     }
-    
+
     if (branch_id <= cpu->last_branch_id)
     {
         while (branch_id <= cpu->last_branch_id)
@@ -92,9 +92,9 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
             cpu->bis.bis_entry[branch_id].free = 1;
             branch_id++;
         }
-        
+
         branch_id = 0;
-        
+
         while (branch_id <= cpu->last_branch_id)
         {
             cpu->bis.bis_entry[branch_id].free = 1;

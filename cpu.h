@@ -5,9 +5,9 @@
 
 #ifndef _APEX_CPU_H_
 #define _APEX_CPU_H_
-#define IQ_ENTRIES_NUMBER 16
-#define ROB_ENTRIES_NUMBER 32
-#define LSQ_ENTRIES_NUMBER 20
+#define IQ_ENTRIES_NUMBER 8
+#define ROB_ENTRIES_NUMBER 12
+#define LSQ_ENTRIES_NUMBER 6
 #define PRF_ENTRIES_NUMBER 24
 #define ARF_ENTRIES_NUMBER 16
 #define ALLOCATE_PHY_REGISTER 16
@@ -19,7 +19,10 @@ enum STAGES
     F,
     DRF,
     Int_FU,
+    Int_FU2,
     Mul_FU,
+    Mul_FU2,
+    Mul_FU3,
     MEM,
     NUM_STAGES
 };
@@ -277,7 +280,7 @@ typedef struct APEX_CPU
     BIS bis;
 
     /* Array of 5 CPU_stage */
-    CPU_Stage stage[5];
+    CPU_Stage stage[8];
 
     /* Code Memory where instructions are stored */
     APEX_Instruction* code_memory;
@@ -315,6 +318,8 @@ int decode(APEX_CPU* cpu);
 
 
 int execute_int(APEX_CPU* cpu);
+
+int execute_int2(APEX_CPU* cpu);
 
 
 int execute_mul(APEX_CPU* cpu);

@@ -182,29 +182,13 @@ int distribute_result_to_iq(APEX_CPU* cpu, enum STAGES FU_type)
 }
 
 
-void display_iq_for_debug(APEX_CPU* cpu)
-{
-    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    printf("Details of IQ State\n");
-    for (int i = 0; i < IQ_ENTRIES_NUMBER; i++)
-    {
-        if (!cpu->iq.iq_entry[i].free)
-        {
-            printf("| ID=%d, PC=%d, OPCODE=%s, COUNTER=%d, FREE=%d, FU_Type=%d, IMM=%d, RS1_READY=%d, PHYS_RS1=%d, RS1_VALUE=%d, RS2_READY=%d, PHYS_RS2=%d, RS2_VALUE=%d, RS3_READY=%d, PHYS_RS3=%d, RS3_VALUE=%d, PHYS_RD=%d, ROB_ENTRY=%d, LSQ=%d, BRCH_ID=%d |\n",
-            i, cpu->iq.iq_entry[i].pc, cpu->iq.iq_entry[i].opcode, cpu->iq.iq_entry[i].counter,cpu->iq.iq_entry[i].free, cpu->iq.iq_entry[i].FU_type, cpu->iq.iq_entry[i].imm,
-            cpu->iq.iq_entry[i].rs1_ready, cpu->iq.iq_entry[i].phys_rs1, cpu->iq.iq_entry[i].rs1_value,
-            cpu->iq.iq_entry[i].rs2_ready, cpu->iq.iq_entry[i].phys_rs2, cpu->iq.iq_entry[i].rs2_value,
-            cpu->iq.iq_entry[i].rs3_ready, cpu->iq.iq_entry[i].phys_rs3, cpu->iq.iq_entry[i].rs3_value,
-            cpu->iq.iq_entry[i].phys_rd, cpu->iq.iq_entry[i].rob_entry_id, cpu->iq.iq_entry[i].LSQ_index,cpu->iq.iq_entry[i].branch_id);
-        }
-    }
-}
+
 
 
 void print_iq(APEX_CPU* cpu)
 {
     int iq_empty = 1;
-    printf("\n--------------------------------- Issue Queue -----------------------------------\n");
+    printf("\nDetails of IQ (Issue Queue) State –\n");
 
     for (int i = 0; i < IQ_ENTRIES_NUMBER; i++)
     {
@@ -238,7 +222,7 @@ void print_iq(APEX_CPU* cpu)
         printf("Empty\n");
     }
 
-    printf("---------------------------------------------------------------------------------\n\n");
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
 }
 
 
