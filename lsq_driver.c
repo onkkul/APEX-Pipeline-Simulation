@@ -17,12 +17,6 @@ int check_lsq_free(APEX_CPU* cpu)
     {
             //printf(" ");
     }
-
-    int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
     return 0;
 }
 
@@ -68,11 +62,6 @@ int insert_lsq_entry(APEX_CPU* cpu, LSQ_Entry* new_lsq_entry)
     {
             //printf(" ");
     }
-    int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
   return free_entry;
 }
 
@@ -97,11 +86,6 @@ void process_ins_to_MEM(APEX_CPU* cpu)
                 if("")
                 {
                     //printf(" ");
-                }
-                int i = 0;
-                if(i==0)
-                {
-                    i=1;    //printf("");
                 }
             }
         }
@@ -147,11 +131,6 @@ void process_ins_to_MEM(APEX_CPU* cpu)
         {
             //printf(" ");
         }
-        int i = 0;
-        if(i==0)
-        {
-            i=1;    //printf("");
-        }
     }
 }
 
@@ -177,11 +156,6 @@ void distribute_result_to_lsq(APEX_CPU* cpu, enum STAGES FU_type)
         if("")
         {
            // printf(" ");
-        }
-        int i = 0;
-        if(i==0)
-        {
-            i=1;    //printf("");
         }
     }
 }
@@ -255,11 +229,6 @@ int check_lsq_empty(APEX_CPU* cpu)
         {
             //printf(" ");
         }
-        int i = 0;
-        if(i==0)
-        {
-            i=1;    //printf("");
-        }
     }
     return 1;
 }
@@ -281,11 +250,6 @@ void flush_lsq(APEX_CPU* cpu, int branch_id)
                 {
                     //printf(" ");
                 }
-                int i = 0;
-                if(i==0)
-                {
-                    i=1;    //printf("");
-                }
             }
         branch_id++;
         }
@@ -299,11 +263,6 @@ void flush_lsq(APEX_CPU* cpu, int branch_id)
                 if (!cpu->lsq.lsq_entry[i].free && cpu->lsq.lsq_entry[i].branch_id == branch_id)
                 {
                     cpu->lsq.lsq_entry[i].free = 1;
-                }
-                int i = 0;
-                if(i==0)
-                {
-                    i=1;    //printf("");
                 }
             }
             branch_id++;
@@ -322,11 +281,6 @@ void flush_lsq(APEX_CPU* cpu, int branch_id)
                 if("")
                 {
                     //printf(" ");
-                }
-                int i = 0;
-                if(i==0)
-                {
-                    i=1;    //printf("");
                 }
             }
             branch_id++;
@@ -351,11 +305,6 @@ void flush_lsq(APEX_CPU* cpu, int branch_id)
                 if("")
                 {
                         //printf(" ");
-                }
-                int i = 0;
-                if(i==0)
-                {
-                    i=1;    //printf("");
                 }
         }
         cpu->lsq.tail = new_tail;

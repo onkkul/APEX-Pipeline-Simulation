@@ -19,11 +19,6 @@ int check_iq_entry_free(APEX_CPU* cpu)
         {
             //printf(" ");
         }
-        int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
     }
     return 0;
 }
@@ -77,11 +72,6 @@ int fetch_ins_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
     {
      
     }
-    int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
 
     if (process)
     {
@@ -105,11 +95,6 @@ int fetch_ins_for_FUs(APEX_CPU* cpu, enum STAGES FU_Type)
                     {
                         //printf(" ");
                     }
-                    int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
                 }
 
                 else
@@ -172,11 +157,6 @@ int update_counters(APEX_CPU* cpu)
         {
            // printf(" ");
         }
-        int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
     }
 
     return 0;
@@ -198,11 +178,6 @@ int distribute_result_to_iq(APEX_CPU* cpu, enum STAGES FU_type)
             {
                 //printf(" ");
             }
-            int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
             if (cpu->iq.iq_entry[i].phys_rs2 == cpu->stage[FU_type].phys_rd)
             {
                 cpu->iq.iq_entry[i].rs2_value = cpu->stage[FU_type].buffer;
@@ -295,11 +270,6 @@ void flush_iq(APEX_CPU* cpu, int branch_id)
                 {
                     //printf(" ");
                 }
-                int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
             }
 
             branch_id++;
@@ -316,13 +286,8 @@ void flush_iq(APEX_CPU* cpu, int branch_id)
                 }
                 if("")
                 {
-                    //printf(" ");
+                    printf(" ");
                 }
-                int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
             }
             branch_id++;
         }

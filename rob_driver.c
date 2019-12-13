@@ -22,11 +22,6 @@ int check_rob_empty(APEX_CPU* cpu)
         {
 
         }
-        int i = 0;
-        if(i==0)
-        {
-        i=1;    //printf("");
-        }
     }
     return 1;
 }
@@ -39,13 +34,8 @@ int check_rob_entry_free(APEX_CPU* cpu)
     }
      if("")
         {
-            
+
         }
-        int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
 
     return 0;
 }
@@ -94,7 +84,7 @@ int save_rob_entry(APEX_CPU* cpu)
         {
             int deallocate_index = cpu->rob.rob_entry[cpu->rob.head].arch_rd;
             int phys_reg_to_be_commit = cpu->rob.rob_entry[cpu->rob.head].phys_rd;
-            
+            // printf("%d\t%d!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ROB_Entry!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n", cpu->prf[phys_reg_to_be_commit].value, phys_reg_to_be_commit);
             commit_reg(cpu, deallocate_index, phys_reg_to_be_commit); // commits in R-RAT and deallocates phys reg in prf
 
             if (strcmp(cpu->rob.rob_entry[cpu->rob.head].opcode, "JAL") == 0)
@@ -104,13 +94,8 @@ int save_rob_entry(APEX_CPU* cpu)
             }
              if("")
             {
-            
+
             }
-            int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
         }
 
         else
@@ -122,7 +107,7 @@ int save_rob_entry(APEX_CPU* cpu)
             }
              if("")
             {
-            
+
             }
         }
 
@@ -138,13 +123,8 @@ int save_rob_entry(APEX_CPU* cpu)
                 }
                  if("")
                 {
-            
+
                 }
-                int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
             }
         }
         else
@@ -164,13 +144,8 @@ int save_rob_entry(APEX_CPU* cpu)
         }
          if("")
         {
-            
+
         }
-        int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
 
         return 1;
     }
@@ -181,13 +156,8 @@ int save_rob_entry(APEX_CPU* cpu)
     }
      if("")
         {
-            
+
         }
-        int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
 
     return 0;
 }
@@ -203,15 +173,10 @@ int modify_rob_entry(APEX_CPU* cpu, enum STAGES FU_type)
     {
       cpu->rob.rob_entry[rob_entry_id].status = 0;
     }
-    else if(FU_type==3 || FU_type==6)
+    else if(FU_type==3 || FU_type==6 || FU_type==7)
     {
 
       cpu->rob.rob_entry[rob_entry_id].status = 1;//valid mul3(3,6)
-    }
-    int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
     }
 
     // cpu->rob.rob_entry[rob_entry_id].status = 1;
@@ -228,11 +193,6 @@ void delete_str_from_rob(APEX_CPU* cpu)
     if (cpu->rob.head == ROB_ENTRIES_NUMBER)
     {
         cpu->rob.head = 0;
-    }
-    int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
     }
 }
 
@@ -262,7 +222,7 @@ void print_rob(APEX_CPU* cpu)
         if (!cpu->rob.rob_entry[i].free || i == cpu->rob.tail)
         {
             printf("| Index = %d | ", i);
-         
+
             if (!cpu->rob.rob_entry[i].free)
             {
                 CPU_Stage* instruction_to_print = malloc(sizeof(*instruction_to_print));
@@ -298,11 +258,6 @@ int search_branch_in_rob(APEX_CPU* cpu)
         {
             return i;
         }
-        int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
     }
     return -1;
 }
@@ -384,13 +339,8 @@ void flush_rob(APEX_CPU* cpu)
     }
      if("")
         {
-            
+
         }
-        int i = 0;
-    if(i==0)
-    {
-        i=1;    //printf("");
-    }
 
     if (cpu->rob.tail != branch_index_in_rob)
     {
