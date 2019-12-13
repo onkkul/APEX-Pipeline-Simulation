@@ -5,20 +5,24 @@
 
 #ifndef _APEX_CPU_H_
 #define _APEX_CPU_H_
-#define IQ_ENTRIES_NUMBER 16
-#define ROB_ENTRIES_NUMBER 32
-#define LSQ_ENTRIES_NUMBER 20
-#define URF_ENTRIES_NUMBER 40
-#define RAT_ENTRIES_NUMBER 16
-#define RRAT_ENTRIES_NUMBER 16
+#define IQ_ENTRIES_NUMBER 8
+#define ROB_ENTRIES_NUMBER 12
+#define LSQ_ENTRIES_NUMBER 6
+#define PRF_ENTRIES_NUMBER 24
+#define ARF_ENTRIES_NUMBER 16
+#define ALLOCATE_PHY_REGISTER 16
+#define DEALLOCATE_PHY_REGISTER 16
 #define BIS_ENTRIES_NUMBER 8
 
 enum STAGES
 {
     F,
     DRF,
-    Branch_FU,
+    Int_FU,
+    Int_FU2,
     Mul_FU,
+    Mul_FU2,
+    Mul_FU3,
     MEM,
     NUM_STAGES
 };
@@ -51,7 +55,7 @@ typedef struct CPU_Stage
     int rs1_value;	// Source-1 Register Value
     int rs2_value;	// Source-2 Register Value
     int rs3_value;  // Source-2 Register Value
-    
+
     int rs1_valid;	// Source-1 Register Value
     int rs2_valid;	// Source-2 Register Value
     int rs3_valid;  // Source-3 Register Value
@@ -122,7 +126,7 @@ typedef struct ROB_Entry
 
     int arch_rd;    // Destination architectural address
     int phys_rd;    // Destination physical address
-    
+
     int arch_rs1;
     int phys_rs1;    // source-1 physical address
 
@@ -142,22 +146,45 @@ typedef struct ROB
     ROB_Entry rob_entry[ROB_ENTRIES_NUMBER];
 } ROB;
 
-typedef struct UNIFIED_REGISTER_FILE_Entry
+typedef struct PHYSICAL_REGISTER_FILE_Entry
 {
     int value;    // Value of physical register
     int free;    // Status bit indicating whether physical register is free or allocated
     int valid;    // Valid bit indicating whether physical register holds valid value or not
-} UNIFIED_REGISTER_FILE_Entry;
 
-typedef struct RENAME_ALIAS_TABLE_Entry
-{
-    int phys_reg;   // The most recent physical register for an architectural register in URF
-} RENAME_ALIAS_TABLE_Entry;
+    int which_arch_reg;
 
-typedef struct RETIREMENT_RENAME_ALIAS_TABLE_Entry
+    // RENAME_ALIAS_TABLE_Entry part
+    // int allocate_phys_reg;   // The most recent physical register for an architectural register in prf
+
+    // // RETIREMENT_RENAME_ALIAS_TABLE_Entry tag part
+    // int deallocate_commited_phys_reg; // Commited physical register for an architectural register in prf
+
+} PHYSICAL_REGISTER_FILE_Entry;
+
+typedef struct ARCHITECTURAL_REGISTER_FILE_Entry
 {
-    int commited_phys_reg; // Commited physical register for an architectural register in URF
-} RETIREMENT_RENAME_ALIAS_TABLE_Entry;
+    int value;    // Value of physical register
+    int free;    // Status bit indicating whether physical register is free or allocated
+    int valid;    // Valid bit indicating whether physical register holds valid value or not
+
+    // RENAME_ALIAS_TABLE_Entry part
+    int allocate_phys_reg;    // The most recent physical register for an architectural register in prf
+
+    // RETIREMENT_RENAME_ALIAS_TABLE_Entry tag part
+    // int deallocate_commited_phys_reg; // Commited physical register for an architectural register in prf
+
+} ARCHITECTURAL_REGISTER_FILE_Entry;
+
+// typedef struct RENAME_ALIAS_TABLE_Entry
+// {
+//     int phys_reg;   // The most recent physical register for an architectural register in prf
+// } RENAME_ALIAS_TABLE_Entry;
+
+// typedef struct RETIREMENT_RENAME_ALIAS_TABLE_Entry
+// {
+//     int commited_phys_reg; // Commited physical register for an architectural register in prf
+// } RETIREMENT_RENAME_ALIAS_TABLE_Entry;
 
 typedef struct BIS_Entry
 {
@@ -167,8 +194,8 @@ typedef struct BIS_Entry
 
 typedef struct BACKUP_Entry
 {
-    //UNIFIED_REGISTER_FILE_Entry urf[URF_ENTRIES_NUMBER];
-    RENAME_ALIAS_TABLE_Entry rat[RAT_ENTRIES_NUMBER];
+    // RENAME_ALIAS_TABLE_Entry prf[ALLOCATE_PHY_REGISTER];
+    ARCHITECTURAL_REGISTER_FILE_Entry arf[ARF_ENTRIES_NUMBER];
 } BACKUP_Entry;
 
 typedef struct BIS
@@ -234,13 +261,14 @@ typedef struct APEX_CPU
     /* Current program counter */
     int pc;
 
-    UNIFIED_REGISTER_FILE_Entry urf[URF_ENTRIES_NUMBER];
+    PHYSICAL_REGISTER_FILE_Entry prf[PRF_ENTRIES_NUMBER];
+    ARCHITECTURAL_REGISTER_FILE_Entry arf[ARF_ENTRIES_NUMBER];
 
-    /* Rename Table for 5 architectural registers */
-    RENAME_ALIAS_TABLE_Entry rat[RAT_ENTRIES_NUMBER];
+    // /* Rename Table for 5 architectural registers */
+    // RENAME_ALIAS_TABLE_Entry allocate[ALLOCATE_PHY_REGISTER];
 
-    /* Back-end Register Alias Table - 5 architectural registers point to committed physical registers in URF */
-    RETIREMENT_RENAME_ALIAS_TABLE_Entry rrat[RRAT_ENTRIES_NUMBER];
+    //  Back-end Register Alias Table - 5 architectural registers point to committed physical registers in prf
+    // RETIREMENT_RENAME_ALIAS_TABLE_Entry deallocate[DEALLOCATE_PHY_REGISTER];
 
     /* Issue Queue with 2 entries */
     ISSUE_QUEUE iq;
@@ -252,7 +280,7 @@ typedef struct APEX_CPU
     BIS bis;
 
     /* Array of 5 CPU_stage */
-    CPU_Stage stage[5];
+    CPU_Stage stage[8];
 
     /* Code Memory where instructions are stored */
     APEX_Instruction* code_memory;
@@ -289,7 +317,9 @@ int fetch(APEX_CPU* cpu);
 int decode(APEX_CPU* cpu);
 
 
-int execute_branch(APEX_CPU* cpu);
+int execute_int(APEX_CPU* cpu);
+
+int execute_int2(APEX_CPU* cpu);
 
 
 int execute_mul(APEX_CPU* cpu);

@@ -1,7 +1,3 @@
-/*  file_parser.c
- *
- *  State University of New York, Binghamton
- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,6 +51,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         {
             exception_handler(1, ins->opcode);
         }
+        if("")
+        {
+         
+        }
 
         ins->imm = get_input_from_string(tokens[2]);
     }
@@ -68,6 +68,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0)) 
         {
             exception_handler(1, ins->opcode);
+        }
+        if("")
+        {
+            //printf(" ");
         }
 
         ins->imm = get_input_from_string(tokens[3]);
@@ -91,6 +95,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         ins->rd = get_input_from_string(tokens[1]);
         ins->rs1 = get_input_from_string(tokens[2]);
         ins->imm = get_input_from_string(tokens[3]);
+        if("")
+        {
+        
+        }
     }
 
     //added oafterwards by onkar 22 nov 11:43
@@ -99,6 +107,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         ins->rd = get_input_from_string(tokens[1]);
         ins->rs1 = get_input_from_string(tokens[2]);
         ins->rs2 = get_input_from_string(tokens[3]);
+        if("")
+        {
+        
+        }
     }
 
     if (strcmp(ins->opcode, "ADD") == 0 || strcmp(ins->opcode, "SUB") == 0 || strcmp(ins->opcode, "AND") == 0 || strcmp(ins->opcode, "OR") == 0 || strcmp(ins->opcode, "EX-OR") == 0 || strcmp(ins->opcode, "MUL") == 0) 
@@ -111,6 +123,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rs2 > 24 || ins->rs2 < 0) || (ins->rd > 24 || ins->rd < 0)) 
         {
             exception_handler(1, ins->opcode);
+            if("")
+            {
+                
+            }
         }
     }
 
@@ -124,6 +140,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         if ((ins->rs1 > 24 || ins->rs1 < 0) || (ins->rd > 24 || ins->rd < 0)) 
         {
             exception_handler(1, ins->opcode);
+            if("")
+            {
+                
+            }
         }
     }
 
@@ -139,6 +159,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         if (ins->rs1 > 24 || ins->rs1 < 0) 
         {
             exception_handler(1, ins->opcode);
+            if("")
+            {
+                
+            }
         }
 
         ins->imm = get_input_from_string(tokens[2]);
@@ -152,6 +176,10 @@ static void create_APEX_instruction(APEX_Instruction* ins, char* buffer)
         if (ins->rs1 > 24 || ins->rs1 < 0) 
         {
             exception_handler(1, ins->opcode);
+        }
+        if("")
+        {
+            //printf(" ");
         }
 
         ins->imm = get_input_from_string(tokens[3]);
