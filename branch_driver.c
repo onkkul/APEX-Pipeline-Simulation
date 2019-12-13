@@ -27,8 +27,13 @@ int pull_bis(APEX_CPU* cpu)
     {
         if("")
         {
-            printf("...");
+            //printf("");
         }
+        int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
         cpu->bis.tail = 0;   
     }
 
@@ -55,8 +60,13 @@ void flushing_FUs(APEX_CPU* cpu, int branch_id, enum STAGES FU_type)
             
             if("")
             {
-            printf(" ");
+            //printf(" ");
             }
+            int i = 0;
+    if(i==0)
+    {
+        i=1;    //printf("");
+    }
             
             if (FU_type == MEM)
             {
@@ -72,9 +82,10 @@ void flushing_F_D(APEX_CPU* cpu)
 {
     strcpy(cpu->stage[F].opcode, "");
     strcpy(cpu->stage[DRF].opcode, "");
-    if("")
+    int i = 0;
+    if(i==0)
     {
-            printf(".");
+        i=1;    //printf("");
     }
     cpu->stage[F].stalled = 1;
     cpu->stage[DRF].stalled = 0;
@@ -95,9 +106,10 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
     {
         while (branch_id <= cpu->last_branch_id)
         {
-            if("")
+            int i = 0;
+            if(i==0)
             {
-            printf(".");
+                i=1;    //printf("");
             }
     
             cpu->bis.bis_entry[branch_id].free = 1;
@@ -117,9 +129,10 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
         while (branch_id <= cpu->last_branch_id)
         {
             
-            if("")
+            int i = 0;
+            if(i==0)
             {
-            printf(".");
+                i=1;    //printf("");
             }
     
             cpu->bis.bis_entry[branch_id].free = 1;
@@ -132,9 +145,16 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
     if (initial_branch_id == BIS_ENTRIES_NUMBER)
     {
         cpu->bis.tail = 0;
+        
         if("")
         {
-            printf(".");
+            printf(" ");
+        }
+
+        int i = 0;
+            if(i==0)
+        {
+            i=1;    //printf("");
         }
     
     }
@@ -143,7 +163,12 @@ void clear_bis_ids(APEX_CPU* cpu, int branch_id)
         cpu->bis.tail = initial_branch_id;
         if("")
         {
-            printf(".");
+            printf(" ");
+        }
+        int i = 0;
+        if(i==0)
+        {
+            i=1;    //printf("");
         }
     
     }
