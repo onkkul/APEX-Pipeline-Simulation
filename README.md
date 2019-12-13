@@ -5,3 +5,4 @@ You can find requirements for the project and problem statement in "Requirements
 
 Usage
 -----
+make clean; make all; clear; ./apex_sim input.asm display 30
